@@ -12,20 +12,41 @@ void Log::nextLogFile(filesystem::path&& logs) noexcept
 {
 	filesystem::directory_iterator it(logs);
 
+	time_t epoch;
+	tm curTime;
+	string curDate;
+	curDate.resize(11);
+
+	time(&epoch);
+
+	gmtime_s(&curTime, &epoch);
+
+	strftime(curDate.data(), curDate.size(), "%d-%m-%Y", &curTime);
+
+	curDate.pop_back();
+
 	for (const auto& i : it)
 	{
 		if (filesystem::file_size(i) < logFileSize)
 		{
-			logFile.open(i, ios::app);
+			string checkDate = i.path().filename().string();
+			checkDate.resize(10);
 
-			break;
+			if (curDate == checkDate)
+			{
+				logFile.open(i, ios::app);
+
+				currentLogFilePath = i;
+
+				break;
+			}
 		}
 	}
 
 	if (!logFile.is_open())
 	{
 		time_t epochTime;
-		char format[32]{};
+		char format[20]{};
 		tm calendarTime;
 
 		time(&epochTime);
@@ -35,7 +56,24 @@ void Log::nextLogFile(filesystem::path&& logs) noexcept
 		strftime(format, sizeof(format), "%d-%m-%Y %H-%M-%S", &calendarTime);
 
 		logFile.open(logs.append(format).replace_extension(".log"));
+		currentLogFilePath = move(logs);
 	}
+}
+
+bool Log::validation(const string& format, size_t count)
+{
+	vector<size_t> values;
+	size_t next = format.find("{}");
+
+	values.reserve(count);
+
+	while (next != string::npos)
+	{
+		values.push_back(next);
+		next = format.find("{}", next + 1);
+	}
+
+	return values.size() == count;
 }
 
 void Log::init()
@@ -58,40 +96,6 @@ void Log::init()
 
 		nextLogFile(move(curPath));
 	}
-}
-
-void Log::log(logType type, const string& message)
-{
-	writeLock.lock();
-
-	logFile << '[';
-
-	switch (type)
-	{
-	case logType::info:
-		logFile << "info";
-		break;
-	case logType::warning:
-		logFile << "warning";
-		break;
-	case logType::error:
-		logFile << "error";
-		break;
-	case logType::fatalError:
-		logFile << "fatal error";
-		break;
-	default:
-		writeLock.unlock();
-		return;
-
-		break;
-	}
-
-	logFile << "] ";
-
-	logFile << message << endl;
-
-	writeLock.unlock();
 }
 
 #pragma warning (pop)
