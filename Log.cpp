@@ -8,9 +8,9 @@
 
 using namespace std;
 
-void Log::nextLogFile(filesystem::path&& logs) noexcept
+void Log::nextLogFile()
 {
-	filesystem::directory_iterator it(logs);
+	filesystem::directory_iterator it(currentLogFilePath.parent_path());
 
 	time_t epoch;
 	tm curTime;
@@ -38,26 +38,54 @@ void Log::nextLogFile(filesystem::path&& logs) noexcept
 
 				currentLogFilePath = i;
 
-				break;
+				return;
 			}
 		}
 	}
 
-	if (!logFile.is_open())
-	{
-		time_t epochTime;
-		char format[20]{};
-		tm calendarTime;
+	newLogDirectory();
 
-		time(&epochTime);
+	logFile.close();
 
-		gmtime_s(&calendarTime, &epochTime);
+	time_t epochTime;
+	string format;
+	format.resize(20);
+	tm calendarTime;
 
-		strftime(format, sizeof(format), "%d-%m-%Y %H-%M-%S", &calendarTime);
+	time(&epochTime);
 
-		logFile.open(logs.append(format).replace_extension(".log"));
-		currentLogFilePath = move(logs);
-	}
+	gmtime_s(&calendarTime, &epochTime);
+
+	strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+
+	format.pop_back();
+
+	logFile.open(currentLogFilePath.append(format).replace_extension(".log"));
+}
+
+void Log::newLogDirectory()
+{
+	filesystem::path cur(filesystem::current_path());
+	time_t epochTime;
+	tm calendarTime;
+	string curDate;
+	curDate.resize(11);
+
+	cur.append("logs");
+
+	time(&epochTime);
+
+	gmtime_s(&calendarTime, &epochTime);
+
+	strftime(curDate.data(), curDate.size(), "%d-%m-%Y", &calendarTime);
+
+	curDate.pop_back();
+
+	cur.append(curDate);
+
+	filesystem::create_directory(cur);
+
+	currentLogFilePath = move(cur);
 }
 
 bool Log::validation(const string& format, size_t count)
@@ -76,25 +104,51 @@ bool Log::validation(const string& format, size_t count)
 	return values.size() == count;
 }
 
+bool Log::checkDate()
+{
+	time_t epochTime;
+	tm calendarTime;
+
+	time(&epochTime);
+
+	gmtime_s(&calendarTime, &epochTime);
+
+	string currentDate;
+	string logFileDate = currentLogFilePath.filename().string();
+	currentDate.resize(11);
+	logFileDate.resize(10);
+
+	strftime(currentDate.data(), currentDate.size(), "%d-%m-%Y", &calendarTime);
+
+	currentDate.pop_back();
+
+	if (logFileDate == currentDate)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void Log::init()
 {
-	filesystem::path curPath(filesystem::current_path());
+	currentLogFilePath = filesystem::current_path();
 
-	curPath.append("logs");
+	currentLogFilePath.append("logs");
 
-	if (filesystem::exists(curPath) && filesystem::is_directory(curPath))
+	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
-		nextLogFile(move(curPath));
+		nextLogFile();
 	}
-	else if (filesystem::exists(curPath) && !filesystem::is_directory(curPath))
+	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
 	{
-		cout << curPath << " must be directory" << endl;
+		cout << currentLogFilePath << " must be directory" << endl;
 	}
-	else if (!filesystem::exists(curPath))
+	else if (!filesystem::exists(currentLogFilePath))
 	{
-		filesystem::create_directory(curPath);
+		filesystem::create_directory(currentLogFilePath);
 
-		nextLogFile(move(curPath));
+		nextLogFile();
 	}
 }
 

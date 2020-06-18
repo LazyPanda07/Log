@@ -32,10 +32,16 @@ private:
 	template<typename... Args>
 	static void stringFormat(std::string& format, Args&&... args);
 
-	static void nextLogFile(std::filesystem::path&& logs) noexcept;
+	static void nextLogFile();
+	
+	//create directory with current date
+	static void newLogDirectory();
 
 	//check arguments count
 	static bool validation(const std::string& format, size_t count);
+
+	//check current log file date equals current date
+	static bool checkDate();
 
 	//basic log function
 	template<typename... Args>
@@ -142,12 +148,12 @@ void Log::log(level type, std::string&& format, Args&&... args)
 
 		writeLock.lock();
 
-		logFile << format << std::endl;
-
-		if (std::filesystem::file_size(currentLogFilePath) >= logFileSize)
+		if (std::filesystem::file_size(currentLogFilePath) >= logFileSize || !checkDate())
 		{
-			nextLogFile(currentLogFilePath.parent_path());
+			nextLogFile();
 		}
+
+		logFile << format << std::endl;
 
 		writeLock.unlock();
 	}
