@@ -10,7 +10,7 @@ using namespace std;
 
 void Log::nextLogFile()
 {
-	filesystem::directory_iterator it(currentLogFilePath.parent_path());
+	filesystem::directory_iterator it(currentLogFilePath.filename() == parentDirectory ? currentLogFilePath : currentLogFilePath.parent_path());
 
 	time_t epoch;
 	tm curTime;
@@ -27,18 +27,23 @@ void Log::nextLogFile()
 
 	for (const auto& i : it)
 	{
-		if (filesystem::file_size(i) < logFileSize)
+		string checkDate = i.path().filename().string();
+		checkDate.resize(10);
+
+		if (curDate == checkDate)
 		{
-			string checkDate = i.path().filename().string();
-			checkDate.resize(10);
+			filesystem::directory_iterator logFiles(i);
 
-			if (curDate == checkDate)
+			for (const auto& j : logFiles)
 			{
-				logFile.open(i, ios::app);
+				if (checkFileSize(j))
+				{
+					logFile.open(j, ios::app);
 
-				currentLogFilePath = i;
+					currentLogFilePath = j;
 
-				return;
+					return;
+				}
 			}
 		}
 	}
@@ -128,6 +133,11 @@ bool Log::checkDate()
 	}
 
 	return false;
+}
+
+bool Log::checkFileSize(const filesystem::path& filePath)
+{
+	return filesystem::file_size(filePath) < logFileSize;
 }
 
 void Log::init()

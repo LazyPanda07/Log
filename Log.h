@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
-#include <mutex>
+#include <shared_mutex>
 
 #include "CompileTimeCheck.h"
 #include "Constants.h"
@@ -13,7 +13,7 @@ class Log
 {
 private:
 	static inline std::ofstream logFile;
-	static inline std::mutex writeLock;
+	static inline std::shared_mutex writeLock;
 	static inline std::filesystem::path currentLogFilePath;
 
 private:
@@ -42,6 +42,9 @@ private:
 
 	//check current log file date equals current date
 	static bool checkDate();
+
+	//check file size is less than logFileSize
+	static bool checkFileSize(const std::filesystem::path& filePath);
 
 	//basic log function
 	template<typename... Args>
