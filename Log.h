@@ -33,7 +33,7 @@ private:
 	static void stringFormat(std::string& format, Args&&... args);
 
 	static void nextLogFile();
-	
+
 	//create directory with current date
 	static void newLogDirectory();
 
@@ -45,6 +45,13 @@ private:
 
 	//check file size is less than logFileSize
 	static bool checkFileSize(const std::filesystem::path& filePath);
+
+	//returns current date with next format: days-months-years hours-minutes-seconds
+	static std::string getFullCurrentDate();
+
+	//returns information about current thread with next format: thread id = <id><tabulation>
+	//using ostringstream
+	static std::string getCurrentThread();
 
 	//basic log function
 	template<typename... Args>
@@ -115,7 +122,7 @@ void Log::log(level type, std::string&& format, Args&&... args)
 		stringFormat(format, std::forward<Args>(args)...);
 
 		std::string additionalInformation;
-		additionalInformation.reserve(16);
+		additionalInformation.reserve(64);
 
 		additionalInformation += '[';
 
@@ -145,7 +152,7 @@ void Log::log(level type, std::string&& format, Args&&... args)
 			return;
 		}
 
-		additionalInformation += "] ";
+		additionalInformation += "] GMT " + getFullCurrentDate() + " " + getCurrentThread() + " ";
 
 		format.insert(std::begin(format), std::begin(additionalInformation), std::end(additionalInformation));
 

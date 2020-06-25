@@ -1,6 +1,7 @@
 #include "Log.h"
 
 #include <iostream>
+#include <sstream>
 #include <ctime>
 
 #pragma warning (push)
@@ -52,18 +53,7 @@ void Log::nextLogFile()
 
 	logFile.close();
 
-	time_t epochTime;
-	string format;
-	format.resize(20);
-	tm calendarTime;
-
-	time(&epochTime);
-
-	gmtime_s(&calendarTime, &epochTime);
-
-	strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
-
-	format.pop_back();
+	string format = getFullCurrentDate();
 
 	logFile.open(currentLogFilePath.append(format).replace_extension(".log"));
 }
@@ -138,6 +128,33 @@ bool Log::checkDate()
 bool Log::checkFileSize(const filesystem::path& filePath)
 {
 	return filesystem::file_size(filePath) < logFileSize;
+}
+
+string Log::getFullCurrentDate()
+{
+	time_t epochTime;
+	string format;
+	format.resize(20);
+	tm calendarTime;
+
+	time(&epochTime);
+
+	gmtime_s(&calendarTime, &epochTime);
+
+	strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+
+	format.pop_back();
+
+	return format;
+}
+
+string Log::getCurrentThread()
+{
+	ostringstream format;
+
+	format << "thread id = " << this_thread::get_id() << "	";
+
+	return format.str();
 }
 
 void Log::init()
