@@ -18,10 +18,10 @@
     <ClInclude Include="src\Log.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Constants.h">
+    <ClInclude Include="src\CompileTimeCheck.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\CompileTimeCheck.h">
+    <ClInclude Include="src\LogConstants.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

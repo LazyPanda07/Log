@@ -157,8 +157,9 @@ string Log::getCurrentThread()
 	return format.str();
 }
 
-void Log::init()
+void Log::init(bool endlAfterLog)
 {
+	Log::endlAfterLog = endlAfterLog;
 	currentLogFilePath = filesystem::current_path();
 
 	currentLogFilePath.append("logs");

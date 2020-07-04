@@ -7,7 +7,7 @@
 #include <shared_mutex>
 
 #include "CompileTimeCheck.h"
-#include "Constants.h"
+#include "LogConstants.h"
 
 class Log
 {
@@ -15,6 +15,7 @@ private:
 	static inline std::ofstream logFile;
 	static inline std::shared_mutex writeLock;
 	static inline std::filesystem::path currentLogFilePath;
+	static inline bool endlAfterLog;
 
 private:
 	enum class level
@@ -66,7 +67,7 @@ private:
 
 public:
 	//init logFile
-	static void init();
+	static void init(bool endlAfterLog = true);
 
 	template<typename... Args>
 	static void info(std::string&& format, Args&&... args);
@@ -163,7 +164,13 @@ void Log::log(level type, std::string&& format, Args&&... args)
 			nextLogFile();
 		}
 
-		logFile << format << std::endl;
+		logFile << format;
+
+		if (endlAfterLog)
+		{
+			logFile << std::endl;
+		}
+		 
 
 		writeLock.unlock();
 	}
