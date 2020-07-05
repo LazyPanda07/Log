@@ -170,7 +170,8 @@ void Log::log(level type, std::string&& format, Args&&... args)
 		{
 			logFile << std::endl;
 		}
-		 
+
+		logFile.flush();
 
 		writeLock.unlock();
 	}
