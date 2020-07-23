@@ -11,7 +11,7 @@ using namespace std;
 
 void Log::nextLogFile()
 {
-	filesystem::directory_iterator it(currentLogFilePath.filename() == parentDirectory ? currentLogFilePath : currentLogFilePath.parent_path());
+	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
 
 	time_t epoch;
 	tm curTime;
@@ -49,7 +49,7 @@ void Log::nextLogFile()
 		}
 	}
 
-	newLogDirectory();
+	newLogFolder();
 
 	logFile.close();
 
@@ -58,7 +58,7 @@ void Log::nextLogFile()
 	logFile.open(currentLogFilePath.append(format).replace_extension(".log"));
 }
 
-void Log::newLogDirectory()
+void Log::newLogFolder()
 {
 	filesystem::path cur(filesystem::current_path());
 	time_t epochTime;

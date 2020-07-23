@@ -36,7 +36,7 @@ private:
 	static void nextLogFile();
 
 	//create directory with current date
-	static void newLogDirectory();
+	static void newLogFolder();
 
 	//check arguments count
 	static bool validation(const std::string& format, size_t count);
