@@ -63,6 +63,9 @@ private:
 	//using ostringstream
 	static std::string getCurrentThread();
 
+	//get date in dateFormat
+	static void getDate(std::string& outDate, const tm* time);
+
 	//basic log function
 	template<typename... Args>
 	static void log(level type, std::string&& format, Args&&... args);
@@ -71,6 +74,12 @@ private:
 	Log() = delete;
 
 	Log(const Log&) = delete;
+
+	Log(Log&&) noexcept = delete;
+
+	Log& operator = (const Log&) = delete;
+
+	Log& operator = (Log&&) noexcept = delete;
 
 	~Log() = delete;
 
@@ -132,7 +141,7 @@ void Log::log(level type, std::string&& format, Args&&... args)
 		stringFormat(format, std::forward<Args>(args)...);
 
 		std::string additionalInformation;
-		additionalInformation.reserve(64);
+		additionalInformation.reserve(additionalInformationSize);
 
 		additionalInformation += '[';
 

@@ -16,15 +16,12 @@ void Log::nextLogFile()
 	time_t epoch;
 	tm curTime;
 	string curDate;
-	curDate.resize(cDateSize);
 
 	time(&epoch);
 
 	gmtime_s(&curTime, &epoch);
 
-	strftime(curDate.data(), curDate.size(), "%d-%m-%Y", &curTime);
-
-	curDate.pop_back();
+	getDate(curDate, &curTime);
 
 	for (const auto& i : it)
 	{
@@ -64,7 +61,6 @@ void Log::newLogFolder()
 	time_t epochTime;
 	tm calendarTime;
 	string curDate;
-	curDate.resize(cDateSize);
 
 	cur.append("logs");
 
@@ -72,9 +68,7 @@ void Log::newLogFolder()
 
 	gmtime_s(&calendarTime, &epochTime);
 
-	strftime(curDate.data(), curDate.size(), "%d-%m-%Y", &calendarTime);
-
-	curDate.pop_back();
+	getDate(curDate, &calendarTime);
 
 	cur.append(curDate);
 
@@ -110,19 +104,11 @@ bool Log::checkDate()
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
-	currentDate.resize(cDateSize);
 	logFileDate.resize(cPlusPlusDateSize);
 
-	strftime(currentDate.data(), currentDate.size(), "%d-%m-%Y", &calendarTime);
+	getDate(currentDate, &calendarTime);
 
-	currentDate.pop_back();
-
-	if (logFileDate == currentDate)
-	{
-		return true;
-	}
-
-	return false;
+	return logFileDate == currentDate;
 }
 
 bool Log::checkFileSize(const filesystem::path& filePath)
@@ -141,7 +127,23 @@ string Log::getFullCurrentDate()
 
 	gmtime_s(&calendarTime, &epochTime);
 
-	strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+	switch (logDateFormat)
+	{
+	case Log::dateFormat::DMY:
+		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case Log::dateFormat::MDY:
+		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case Log::dateFormat::YMD:
+		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+		break;
+
+	default:
+		break;
+	}
 
 	format.pop_back();
 
@@ -155,6 +157,31 @@ string Log::getCurrentThread()
 	format << "thread id = " << this_thread::get_id() << "	";
 
 	return format.str();
+}
+
+void Log::getDate(string& outDate, const tm* time)
+{
+	outDate.resize(cDateSize);
+
+	switch (logDateFormat)
+	{
+	case Log::dateFormat::DMY:
+		strftime(outDate.data(), cDateSize, "%d-%m-%Y", time);
+		break;
+
+	case Log::dateFormat::MDY:
+		strftime(outDate.data(), cDateSize, "%m-%d-%Y", time);
+		break;
+
+	case Log::dateFormat::YMD:
+		strftime(outDate.data(), cDateSize, "%Y-%m-%d", time);
+		break;
+
+	default:
+		break;
+	}
+
+	outDate.resize(cPlusPlusDateSize);
 }
 
 void Log::init(dateFormat logDateFormat, bool endlAfterLog)
