@@ -36,6 +36,7 @@
 x64/
 Debug/
 Release/
+bin/
 
 # VS sln file
 *.sln

@@ -11,10 +11,19 @@
 
 class Log
 {
+public:
+	enum class dateFormat
+	{
+		DMY,
+		MDY,
+		YMD
+	};
+
 private:
-	static inline std::ofstream logFile;
-	static inline std::shared_mutex writeLock;
 	static inline std::filesystem::path currentLogFilePath;
+	static inline std::shared_mutex writeLock;
+	static inline std::ofstream logFile;
+	static inline dateFormat logDateFormat;
 	static inline bool endlAfterLog;
 
 private:
@@ -67,7 +76,7 @@ private:
 
 public:
 	//init logFile
-	static void init(bool endlAfterLog = true);
+	static void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true);
 
 	template<typename... Args>
 	static void info(std::string&& format, Args&&... args);
@@ -90,17 +99,17 @@ void Log::stringFormat(std::string& format, T&& value, Args&&... args)
 
 	if constexpr (std::is_fundamental_v<std::remove_reference_t<decltype(value)>>)
 	{
-		format.replace(std::begin(format) + first, std::begin(format) + last, std::to_string(value).data());
+		format.replace(format.begin() + first, format.begin() + last, std::to_string(value).data());
 	}
 	else if constexpr (is_iterable_v<decltype(value)>)
 	{
-		format.replace(std::begin(format) + first, std::begin(format) + last, std::begin(value), end(value));
+		format.replace(format.begin() + first, format.begin() + last, std::begin(value), std::end(value));
 	}
 	else if constexpr (std::is_constructible_v<std::string_view, decltype(value)>)
 	{
 		std::string_view tem(value);
 
-		format.replace(std::begin(format) + first, std::begin(format) + last, std::begin(tem), end(tem));
+		format.replace(format.begin() + first, format.begin() + last, tem.begin(), tem.end());
 	}
 
 	stringFormat(format, std::forward<Args>(args)...);
@@ -155,7 +164,7 @@ void Log::log(level type, std::string&& format, Args&&... args)
 
 		additionalInformation += "] GMT " + getFullCurrentDate() + " " + getCurrentThread() + " ";
 
-		format.insert(std::begin(format), std::begin(additionalInformation), std::end(additionalInformation));
+		format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
 		writeLock.lock();
 

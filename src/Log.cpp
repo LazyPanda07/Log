@@ -16,7 +16,7 @@ void Log::nextLogFile()
 	time_t epoch;
 	tm curTime;
 	string curDate;
-	curDate.resize(11);
+	curDate.resize(cDateSize);
 
 	time(&epoch);
 
@@ -29,7 +29,7 @@ void Log::nextLogFile()
 	for (const auto& i : it)
 	{
 		string checkDate = i.path().filename().string();
-		checkDate.resize(10);
+		checkDate.resize(cPlusPlusDateSize);
 
 		if (curDate == checkDate)
 		{
@@ -55,7 +55,7 @@ void Log::nextLogFile()
 
 	string format = getFullCurrentDate();
 
-	logFile.open(currentLogFilePath.append(format).replace_extension(".log"));
+	logFile.open(currentLogFilePath.append(format).replace_extension(fileExtension));
 }
 
 void Log::newLogFolder()
@@ -64,7 +64,7 @@ void Log::newLogFolder()
 	time_t epochTime;
 	tm calendarTime;
 	string curDate;
-	curDate.resize(11);
+	curDate.resize(cDateSize);
 
 	cur.append("logs");
 
@@ -110,8 +110,8 @@ bool Log::checkDate()
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
-	currentDate.resize(11);
-	logFileDate.resize(10);
+	currentDate.resize(cDateSize);
+	logFileDate.resize(cPlusPlusDateSize);
 
 	strftime(currentDate.data(), currentDate.size(), "%d-%m-%Y", &calendarTime);
 
@@ -157,9 +157,10 @@ string Log::getCurrentThread()
 	return format.str();
 }
 
-void Log::init(bool endlAfterLog)
+void Log::init(dateFormat logDateFormat, bool endlAfterLog)
 {
 	Log::endlAfterLog = endlAfterLog;
+	Log::logDateFormat = logDateFormat;
 	currentLogFilePath = filesystem::current_path();
 
 	currentLogFilePath.append("logs");
