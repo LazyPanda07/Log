@@ -9,6 +9,26 @@
 
 using namespace std;
 
+Log::dateFormat Log::dateFormatFromString(const std::string& source)
+{
+	if (source == "DMY")
+	{
+		return Log::dateFormat::DMY;
+	}
+	else if (source == "MDY")
+	{
+		return Log::dateFormat::MDY;
+	}
+	else if (source == "YMD")
+	{
+		return Log::dateFormat::YMD;
+	}
+	else
+	{
+		throw invalid_argument("Can't convert source to dateFormat");
+	}
+}
+
 void Log::nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());

@@ -19,6 +19,9 @@ public:
 		YMD
 	};
 
+public:
+	static dateFormat dateFormatFromString(const std::string& source);
+
 private:
 	static inline std::filesystem::path currentLogFilePath;
 	static inline std::shared_mutex writeLock;
