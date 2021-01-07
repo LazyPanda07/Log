@@ -228,4 +228,9 @@ void Log::init(dateFormat logDateFormat, bool endlAfterLog)
 	}
 }
 
+bool Log::isInitialized()
+{
+	return filesystem::exists(currentLogFilePath);
+}
+
 #pragma warning (pop)

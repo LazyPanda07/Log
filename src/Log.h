@@ -90,6 +90,8 @@ public:
 	//init logFile
 	static void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true);
 
+	static bool isInitialized();
+
 	template<typename... Args>
 	static void info(std::string&& format, Args&&... args);
 
