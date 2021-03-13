@@ -29,6 +29,40 @@ Log::dateFormat Log::dateFormatFromString(const std::string& source)
 	}
 }
 
+string Log::getFullCurrentDate()
+{
+	time_t epochTime;
+	string format;
+	format.resize(20);
+	tm calendarTime;
+
+	time(&epochTime);
+
+	gmtime_s(&calendarTime, &epochTime);
+
+	switch (logDateFormat)
+	{
+	case Log::dateFormat::DMY:
+		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case Log::dateFormat::MDY:
+		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case Log::dateFormat::YMD:
+		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+		break;
+
+	default:
+		break;
+	}
+
+	format.pop_back();
+
+	return format;
+}
+
 void Log::nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
@@ -136,40 +170,6 @@ bool Log::checkFileSize(const filesystem::path& filePath)
 	return filesystem::file_size(filePath) < logFileSize;
 }
 
-string Log::getFullCurrentDate()
-{
-	time_t epochTime;
-	string format;
-	format.resize(20);
-	tm calendarTime;
-
-	time(&epochTime);
-
-	gmtime_s(&calendarTime, &epochTime);
-
-	switch (logDateFormat)
-	{
-	case Log::dateFormat::DMY:
-		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case Log::dateFormat::MDY:
-		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case Log::dateFormat::YMD:
-		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
-		break;
-
-	default:
-		break;
-	}
-
-	format.pop_back();
-
-	return format;
-}
-
 string Log::getCurrentThread()
 {
 	ostringstream format;
@@ -218,7 +218,7 @@ void Log::init(dateFormat logDateFormat, bool endlAfterLog)
 	}
 	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
 	{
-		cout << currentLogFilePath << " must be directory" << endl;
+		cerr << currentLogFilePath << " must be directory" << endl;
 	}
 	else if (!filesystem::exists(currentLogFilePath))
 	{

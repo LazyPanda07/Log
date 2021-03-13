@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <filesystem>
-#include <shared_mutex>
+#include <mutex>
 
 #include "CompileTimeCheck.h"
 #include "LogConstants.h"
@@ -22,9 +22,12 @@ public:
 public:
 	static dateFormat dateFormatFromString(const std::string& source);
 
+	//returns current date with selected dateFormat
+	static std::string getFullCurrentDate();
+
 private:
 	static inline std::filesystem::path currentLogFilePath;
-	static inline std::shared_mutex writeLock;
+	static inline std::mutex writeLock;
 	static inline std::ofstream logFile;
 	static inline dateFormat logDateFormat;
 	static inline bool endlAfterLog;
@@ -58,9 +61,6 @@ private:
 
 	//check file size is less than logFileSize
 	static bool checkFileSize(const std::filesystem::path& filePath);
-
-	//returns current date with next format: days-months-years hours-minutes-seconds
-	static std::string getFullCurrentDate();
 
 	//returns information about current thread with next format: thread id = <id><tabulation>
 	//using ostringstream
@@ -180,7 +180,7 @@ void Log::log(level type, std::string&& format, Args&&... args)
 
 		format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
-		writeLock.lock();
+		std::unique_lock<std::mutex> lock(writeLock);
 
 		if (std::filesystem::file_size(currentLogFilePath) >= logFileSize || !checkDate())
 		{
@@ -195,12 +195,10 @@ void Log::log(level type, std::string&& format, Args&&... args)
 		}
 
 		logFile.flush();
-
-		writeLock.unlock();
 	}
 	else
 	{
-		std::cout << "Not enough arguments for format string" << std::endl;
+		std::cerr << "Not enough arguments for format string" << std::endl;
 	}
 }
 
