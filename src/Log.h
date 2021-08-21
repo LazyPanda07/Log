@@ -1,5 +1,13 @@
 #pragma once
 
+#ifdef LOG_DLL
+#define LOG_API __declspec(dllexport) 
+
+#pragma warning(disable: 4251)
+#else
+#define LOG_API 
+#endif // LOG_DLL
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,7 +17,7 @@
 #include "CompileTimeCheck.h"
 #include "LogConstants.h"
 
-class Log
+class LOG_API Log
 {
 public:
 	enum class dateFormat
