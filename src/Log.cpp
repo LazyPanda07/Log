@@ -203,13 +203,13 @@ void Log::getDate(string& outDate, const tm* time)
 	outDate.resize(cPlusPlusDateSize);
 }
 
-void Log::init(dateFormat logDateFormat, bool endlAfterLog)
+void Log::init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
 {
 	Log::endlAfterLog = endlAfterLog;
 	Log::logDateFormat = logDateFormat;
-	currentLogFilePath = filesystem::current_path();
+	currentLogFilePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
 
-	currentLogFilePath.append("logs");
+	currentLogFilePath /= "logs";
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{

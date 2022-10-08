@@ -30,7 +30,8 @@ public:
 public:
 	static dateFormat dateFormatFromString(const std::string& source);
 
-	//returns current date with selected dateFormat
+	/// @brief Current date with selected dateFormat
+	/// @return 
 	static std::string getFullCurrentDate();
 
 private:
@@ -58,26 +59,38 @@ private:
 
 	static void nextLogFile();
 
-	//create directory with current date
+	/// @brief Create directory with current date
 	static void newLogFolder();
 
-	//check arguments count
+	/// @brief Check arguments count
+	/// @param format 
+	/// @param count 
+	/// @return 
 	static bool validation(const std::string& format, size_t count);
 
-	//check current log file date equals current date
+	/// @brief Check current log file date equals current date
+	/// @return 
 	static bool checkDate();
 
-	//check file size is less than logFileSize
+	/// @brief Check file size is less than logFileSize
+	/// @param filePath 
+	/// @return 
 	static bool checkFileSize(const std::filesystem::path& filePath);
 
-	//returns information about current thread with next format: thread id = <id><tabulation>
-	//using ostringstream
+	/// @brief Using ostringstream
+	/// @return Information about current thread with next format: thread id = <id><tabulation>
 	static std::string getCurrentThread();
 
-	//get date in dateFormat
+	/// @brief Get date in dateFormat
+	/// @param outDate 
+	/// @param time 
 	static void getDate(std::string& outDate, const tm* time);
 
-	//basic log function
+	/// @brief Basic log function
+	/// @tparam ...Args 
+	/// @param type 
+	/// @param format 
+	/// @param ...args 
 	template<typename... Args>
 	static void log(level type, std::string&& format, Args&&... args);
 
@@ -95,8 +108,10 @@ private:
 	~Log() = delete;
 
 public:
-	//init logFile
-	static void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true);
+	/// @brief Init logFile
+	/// @param logDateFormat 
+	/// @param endlAfterLog 
+	static void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true, const std::filesystem::path& pathToLogs = "");
 
 	static bool isInitialized();
 
