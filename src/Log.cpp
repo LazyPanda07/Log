@@ -110,12 +110,12 @@ void Log::nextLogFile()
 
 void Log::newLogFolder()
 {
-	filesystem::path cur(filesystem::current_path());
+	filesystem::path current(basePath);
 	time_t epochTime;
 	tm calendarTime;
 	string curDate;
 
-	cur.append("logs");
+	current /= "logs";
 
 	time(&epochTime);
 
@@ -123,11 +123,11 @@ void Log::newLogFolder()
 
 	getDate(curDate, &calendarTime);
 
-	cur.append(curDate);
+	current /= curDate;
 
-	filesystem::create_directory(cur);
+	filesystem::create_directories(current);
 
-	currentLogFilePath = move(cur);
+	currentLogFilePath = move(current);
 }
 
 bool Log::validation(const string& format, size_t count)
@@ -207,7 +207,8 @@ void Log::init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::pa
 {
 	Log::endlAfterLog = endlAfterLog;
 	Log::logDateFormat = logDateFormat;
-	currentLogFilePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+	basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+	currentLogFilePath = basePath;
 
 	currentLogFilePath /= "logs";
 

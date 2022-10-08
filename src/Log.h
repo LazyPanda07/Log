@@ -36,6 +36,7 @@ public:
 
 private:
 	static inline std::filesystem::path currentLogFilePath;
+	static inline std::filesystem::path basePath;
 	static inline std::mutex writeLock;
 	static inline std::ofstream logFile;
 	static inline dateFormat logDateFormat;
