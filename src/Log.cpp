@@ -221,7 +221,7 @@ void Log::init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::pa
 	}
 	else if (!filesystem::exists(currentLogFilePath))
 	{
-		filesystem::create_directory(currentLogFilePath);
+		filesystem::create_directories(currentLogFilePath);
 
 		nextLogFile();
 	}
