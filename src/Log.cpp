@@ -16,20 +16,23 @@
 
 using namespace std;
 
-static inline std::filesystem::path currentLogFilePath;
-static inline std::filesystem::path basePath;
-static inline std::mutex writeMutex;
-static inline std::ofstream logFile;
+static inline filesystem::path currentLogFilePath;
+static inline filesystem::path basePath;
+static inline mutex writeMutex;
+static inline ofstream logFile;
 static inline dateFormat logDateFormat;
 static inline bool endlAfterLog;
+static size_t currentLogFileSize;
 
 static void nextLogFile();
 
 static void newLogFolder();
 
-static bool checkFileSize(const std::filesystem::path& filePath);
+static bool checkDate();
 
-static void getDate(std::string& outDate, const tm* time);
+static bool checkFileSize(const filesystem::path& filePath);
+
+static void getDate(string& outDate, const tm* time);
 
 static tm getGMTTime();
 
@@ -151,22 +154,27 @@ namespace Log
 		return format.str();
 	}
 
-	bool __checkDate()
+	void __write(const string& data)
 	{
-		tm calendarTime = getGMTTime();
+		unique_lock<mutex> lock(writeMutex);
 
-		string currentDate;
-		string logFileDate = currentLogFilePath.filename().string();
-		logFileDate.resize(cPlusPlusDateSize);
+		currentLogFileSize += data.size();
 
-		getDate(currentDate, &calendarTime);
+		if (currentLogFileSize >= logFileSize || !checkDate())
+		{
+			nextLogFile();
+		}
 
-		return logFileDate == currentDate;
-	}
+		logFile << format;
 
-	std::mutex& __getWriteMutex()
-	{
-		return writeMutex;
+		if (endlAfterLog)
+		{
+			logFile << endl;
+		}
+		else
+		{
+			logFile.flush();
+		}
 	}
 }
 
@@ -181,10 +189,10 @@ void nextLogFile()
 
 	for (const auto& i : it)
 	{
-		string __checkDate = i.path().filename().string();
-		__checkDate.resize(cPlusPlusDateSize);
+		string checkDate = i.path().filename().string();
+		checkDate.resize(cPlusPlusDateSize);
 
-		if (curDate == __checkDate)
+		if (curDate == checkDate)
 		{
 			filesystem::directory_iterator logFiles(i);
 
@@ -195,6 +203,8 @@ void nextLogFile()
 					logFile.open(j.path(), ios::app);
 
 					currentLogFilePath = j.path();
+
+					currentLogFileSize = filesystem::file_size(currentLogFilePath);
 
 					return;
 				}
@@ -226,6 +236,19 @@ void newLogFolder()
 	filesystem::create_directories(current);
 
 	currentLogFilePath = move(current);
+}
+
+bool checkDate()
+{
+	tm calendarTime = getGMTTime();
+
+	string currentDate;
+	string logFileDate = currentLogFilePath.filename().string();
+	logFileDate.resize(cPlusPlusDateSize);
+
+	getDate(currentDate, &calendarTime);
+
+	return logFileDate == currentDate;
 }
 
 bool checkFileSize(const filesystem::path& filePath)

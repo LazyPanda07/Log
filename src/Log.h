@@ -83,12 +83,7 @@ namespace Log
 	/**
 	* @brief For internal usage
 	*/
-	LOG_API_FUNCTION bool __checkDate();
-
-	/**
-	* @brief For internal usage
-	*/
-	LOG_API_FUNCTION std::mutex& __getWriteMutex();
+	LOG_API_FUNCTION void __write(const std::string& data);
 
 	/**
 	* @brief For internal usage
@@ -210,21 +205,7 @@ namespace Log
 
 			format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
-			std::unique_lock<std::mutex> lock(__getWriteMutex());
-
-			if (std::filesystem::file_size(getCurrentLogFilePath()) >= logFileSize || !__checkDate())
-			{
-				nextLogFile();
-			}
-
-			logFile << format;
-
-			if (endlAfterLog)
-			{
-				logFile << std::endl;
-			}
-
-			logFile.flush();
+			__write(format);
 		}
 		else
 		{
