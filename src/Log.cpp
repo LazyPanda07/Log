@@ -165,7 +165,7 @@ namespace Log
 			nextLogFile();
 		}
 
-		logFile << format;
+		logFile << data;
 
 		if (endlAfterLog)
 		{
