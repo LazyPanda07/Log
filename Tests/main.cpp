@@ -6,32 +6,18 @@ TEST(Log, Logging)
 {
 	Log::init();
 
-    std::cout << __LINE__ << std::endl;
-
     Log::info("Information message on line {}", __LINE__);
-
-    std::cout << __LINE__ << std::endl;
 
     Log::warning("Warning message on line {}", __LINE__);
 
-    std::cout << __LINE__ << std::endl;
-
     Log::error("Error message on line {}", __LINE__);
 
-    std::cout << __LINE__ << std::endl;
-
     Log::fatalError("Fatal error message on line {}", __LINE__);
-
-    std::cout << __LINE__ << std::endl;
 
     std::ifstream in(Log::getCurrentLogFilePath());
     std::ostringstream os;
 
-    std::cout << __LINE__ << std::endl;
-
     os << in.rdbuf();
-
-    std::cout << __LINE__ << std::endl;
 
     std::string tem;
 

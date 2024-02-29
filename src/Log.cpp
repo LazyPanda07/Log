@@ -3,6 +3,10 @@
 #include <sstream>
 #include <ctime>
 
+#ifdef __LINUX__
+#include <time.h>
+#endif
+
 #ifndef __LINUX__
 #pragma warning (push)
 #pragma warning (disable: 26812)
@@ -32,14 +36,9 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 
 string Log::getFullCurrentDate()
 {
-	time_t epochTime;
 	string format;
 	format.resize(20);
-	tm calendarTime;
-
-	time(&epochTime);
-
-	gmtime_s(&calendarTime, &epochTime);
+	tm calendarTime = Log::getGMTTime();
 
 	switch (logDateFormat)
 	{
@@ -113,15 +112,10 @@ void Log::nextLogFile()
 void Log::newLogFolder()
 {
 	filesystem::path current(basePath);
-	time_t epochTime;
-	tm calendarTime;
+	tm calendarTime = Log::getGMTTime();
 	string curDate;
 
 	current /= "logs";
-
-	time(&epochTime);
-
-	gmtime_s(&calendarTime, &epochTime);
 
 	getDate(curDate, &calendarTime);
 
@@ -150,12 +144,7 @@ bool Log::validation(const string& format, size_t count)
 
 bool Log::checkDate()
 {
-	time_t epochTime;
-	tm calendarTime;
-
-	time(&epochTime);
-
-	gmtime_s(&calendarTime, &epochTime);
+	tm calendarTime = Log::getGMTTime();
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
@@ -203,6 +192,22 @@ void Log::getDate(string& outDate, const tm* time)
 	}
 
 	outDate.resize(cPlusPlusDateSize);
+}
+
+tm Log::getGMTTime();
+{
+	tm calendarTime;
+	time_t epochTime;
+
+	time(&epochTime);
+
+#ifdef __LINUX__
+	gmtime_r(&epochTime, &calendarTime);
+#else
+	gmtime_s(&calendarTime, &epochTime);
+#endif
+
+	return calendarTime;
 }
 
 string Log::getVersion()

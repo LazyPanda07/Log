@@ -99,6 +99,8 @@ private:
 	template<typename... Args>
 	static void log(level type, std::string&& format, Args&&... args);
 
+	static tm getGMTTime();
+
 private:
 	Log() = delete;
 
