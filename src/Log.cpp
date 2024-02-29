@@ -20,7 +20,7 @@ static inline filesystem::path currentLogFilePath;
 static inline filesystem::path basePath;
 static inline mutex writeMutex;
 static inline ofstream logFile;
-static inline dateFormat logDateFormat;
+static inline Log::dateFormat logDateFormat;
 static inline bool endlAfterLog;
 static size_t currentLogFileSize;
 
@@ -216,7 +216,7 @@ void nextLogFile()
 
 	logFile.close();
 
-	string format = getFullCurrentDate();
+	string format = Log::getFullCurrentDate();
 
 	logFile.open(currentLogFilePath.append(format).replace_extension(fileExtension));
 }
@@ -262,15 +262,15 @@ void getDate(string& outDate, const tm* time)
 
 	switch (logDateFormat)
 	{
-	case dateFormat::DMY:
+	case Log::dateFormat::DMY:
 		strftime(outDate.data(), cDateSize, "%d-%m-%Y", time);
 		break;
 
-	case dateFormat::MDY:
+	case Log::dateFormat::MDY:
 		strftime(outDate.data(), cDateSize, "%m-%d-%Y", time);
 		break;
 
-	case dateFormat::YMD:
+	case Log::dateFormat::YMD:
 		strftime(outDate.data(), cDateSize, "%Y-%m-%d", time);
 		break;
 
