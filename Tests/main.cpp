@@ -49,7 +49,7 @@ TEST(Log, ChangingLogFile)
         Log::info("Log some information with current index {} and line {}", i, __LINE__);
     }
 
-    ASSERT_NE(Log::getCurrentLogFilePath().str(), currentLogFile);
+    ASSERT_NE(Log::getCurrentLogFilePath().string(), currentLogFile);
 }
 
 int main(int argc, char** argv)
