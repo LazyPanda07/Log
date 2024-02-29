@@ -67,13 +67,8 @@ void Log::nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
 
-	time_t epoch;
-	tm curTime;
+	tm curTime = Log::getGMTTime();
 	string curDate;
-
-	time(&epoch);
-
-	gmtime_s(&curTime, &epoch);
 
 	getDate(curDate, &curTime);
 
@@ -90,9 +85,9 @@ void Log::nextLogFile()
 			{
 				if (checkFileSize(j))
 				{
-					logFile.open(j, ios::app);
+					logFile.open(j.path(), ios::app);
 
-					currentLogFilePath = j;
+					currentLogFilePath = j.path();
 
 					return;
 				}
@@ -194,7 +189,7 @@ void Log::getDate(string& outDate, const tm* time)
 	outDate.resize(cPlusPlusDateSize);
 }
 
-tm Log::getGMTTime();
+tm Log::getGMTTime()
 {
 	tm calendarTime;
 	time_t epochTime;
