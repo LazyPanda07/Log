@@ -6,6 +6,8 @@
 
 TEST(Log, Logging)
 {
+    std::cout << __LINE__ << std::endl;
+
 	Log::init();
 
     std::cout << __LINE__ << std::endl;
