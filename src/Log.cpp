@@ -154,7 +154,16 @@ bool Log::checkDate()
 
 bool Log::checkFileSize(const filesystem::path& filePath)
 {
-	return filesystem::file_size(filePath) < logFileSize;
+	try
+	{
+		return filesystem::file_size(filePath) < logFileSize;
+	}
+	catch (const exception& e)
+	{
+		cerr << e.what() << endl;
+
+		return false;
+	}
 }
 
 string Log::getCurrentThread()
