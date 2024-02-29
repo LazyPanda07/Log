@@ -18,7 +18,7 @@ using namespace std;
 
 static inline std::filesystem::path currentLogFilePath;
 static inline std::filesystem::path basePath;
-static inline std::mutex writeLock;
+static inline std::mutex writeMutex;
 static inline std::ofstream logFile;
 static inline dateFormat logDateFormat;
 static inline bool endlAfterLog;
@@ -162,6 +162,11 @@ namespace Log
 		getDate(currentDate, &calendarTime);
 
 		return logFileDate == currentDate;
+	}
+
+	std::mutex& __getWriteMutex()
+	{
+		return writeMutex;
 	}
 }
 

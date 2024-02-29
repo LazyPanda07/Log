@@ -88,6 +88,11 @@ namespace Log
 	/**
 	* @brief For internal usage
 	*/
+	LOG_API_FUNCTION std::mutex& __getWriteMutex();
+
+	/**
+	* @brief For internal usage
+	*/
 	template<typename T, typename... Args>
 	void __stringFormat(std::string& format, T&& value, Args&&... args);
 
@@ -205,9 +210,9 @@ namespace Log
 
 			format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
-			std::unique_lock<std::mutex> lock(writeLock);
+			std::unique_lock<std::mutex> lock(__getWriteMutex());
 
-			if (std::filesystem::file_size(currentLogFilePath) >= logFileSize || !__checkDate())
+			if (std::filesystem::file_size(getCurrentLogFilePath()) >= logFileSize || !__checkDate())
 			{
 				nextLogFile();
 			}
