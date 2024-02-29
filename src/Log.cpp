@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <ctime>
+#include <vector>
 
 #ifdef __LINUX__
 #include <time.h>
