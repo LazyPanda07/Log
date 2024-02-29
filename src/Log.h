@@ -1,9 +1,13 @@
 #pragma once
 
 #ifdef LOG_DLL
-#define LOG_API __declspec(dllexport) 
+#ifdef __LINUX__
+#define __attribute__((visibility("default")))
+#else
+#define LOG_API __declspec(dllexport)
 
 #pragma warning(disable: 4251)
+#endif
 #else
 #define LOG_API 
 #endif // LOG_DLL
@@ -109,12 +113,19 @@ private:
 	~Log() = delete;
 
 public:
+	/**
+	* @brief Get Log library version
+	*/
+	static std::string getVersion();
+
 	/// @brief Init logFile
 	/// @param logDateFormat 
 	/// @param endlAfterLog 
 	static void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true, const std::filesystem::path& pathToLogs = "");
 
 	static bool isInitialized();
+
+	static const std::filesystem::path getCurrentLogFilePath();
 
 	template<typename... Args>
 	static void info(std::string&& format, Args&&... args);
@@ -177,22 +188,22 @@ void Log::log(level type, std::string&& format, Args&&... args)
 		switch (type)
 		{
 		case level::info:
-			additionalInformation += "info";
+			additionalInformation += "INFO";
 
 			break;
 
 		case level::warning:
-			additionalInformation += "warning";
+			additionalInformation += "WARNING";
 
 			break;
 
 		case level::error:
-			additionalInformation += "error";
+			additionalInformation += "ERROR";
 
 			break;
 
 		case level::fatalError:
-			additionalInformation += "fatal error";
+			additionalInformation += "FATAL_ERROR";
 
 			break;
 

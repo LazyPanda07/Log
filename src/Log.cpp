@@ -3,12 +3,14 @@
 #include <sstream>
 #include <ctime>
 
+#ifndef __LINUX__
 #pragma warning (push)
 #pragma warning (disable: 26812)
+#endif
 
 using namespace std;
 
-Log::dateFormat Log::dateFormatFromString(const std::string& source)
+Log::dateFormat Log::dateFormatFromString(const string& source)
 {
 	if (source == "DMY")
 	{
@@ -203,6 +205,13 @@ void Log::getDate(string& outDate, const tm* time)
 	outDate.resize(cPlusPlusDateSize);
 }
 
+string Log::getVersion()
+{
+	string version = "1.0.0";
+
+	return version;
+}
+
 void Log::init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
 {
 	Log::endlAfterLog = endlAfterLog;
@@ -233,4 +242,11 @@ bool Log::isInitialized()
 	return filesystem::exists(currentLogFilePath);
 }
 
+const filesystem::path Log::getCurrentLogFilePath()
+{
+	return Log::currentLogFilePath;
+}
+
+#ifndef __LINUX__
 #pragma warning (pop)
+#endif
