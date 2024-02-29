@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        shared: [[OFF, ""], [OFF, ""]]
+        shared: [[ON, "DLL"], [OFF, ""]]
 
     steps:
     - uses: actions/checkout@v4
@@ -98,6 +98,7 @@ jobs:
       working-directory: Tests
       run: |
           cd build/bin
+          dir
           .\Tests.exe
 
 
