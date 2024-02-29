@@ -96,6 +96,8 @@ namespace Log
 
 	void init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
 	{
+		unique_lock<mutex> lock(writeMutex);
+
 		endlAfterLog = endlAfterLog;
 		logDateFormat = logDateFormat;
 		basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;

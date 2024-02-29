@@ -38,6 +38,20 @@ TEST(Log, Logging)
     ASSERT_TRUE(tem.find("Fatal error message on line 15") != std::string::npos);
 }
 
+TEST(Log, ChangingLogFile)
+{
+    Log::init();
+
+    std::string currentLogFile = Log::getCurrentLogFilePath().str();
+
+    for (size_t i = 0; i < 1'000'000'000; i++)
+    {
+        Log::info("Log some information with current index {} and line {}", i, __LINE__);
+    }
+
+    ASSERT_NE(Log::getCurrentLogFilePath().str(), currentLogFile);
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);
