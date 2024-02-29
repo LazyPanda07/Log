@@ -16,60 +16,129 @@
 
 using namespace std;
 
-Log::dateFormat Log::dateFormatFromString(const string& source)
+static inline std::filesystem::path currentLogFilePath;
+static inline std::filesystem::path basePath;
+static inline std::mutex writeLock;
+static inline std::ofstream logFile;
+static inline dateFormat logDateFormat;
+static inline bool endlAfterLog;
+
+static void nextLogFile();
+
+static void newLogFolder();
+
+static bool validation(const std::string& format, size_t count);
+
+static bool checkDate();
+
+static bool checkFileSize(const std::filesystem::path& filePath);
+
+static std::string getCurrentThread();
+
+static void getDate(std::string& outDate, const tm* time);
+
+static tm getGMTTime();
+
+namespace Log
 {
-	if (source == "DMY")
+	dateFormat dateFormatFromString(const string& source)
 	{
-		return Log::dateFormat::DMY;
+		if (source == "DMY")
+		{
+			return dateFormat::DMY;
+		}
+		else if (source == "MDY")
+		{
+			return dateFormat::MDY;
+		}
+		else if (source == "YMD")
+		{
+			return dateFormat::YMD;
+		}
+		else
+		{
+			throw invalid_argument("Can't convert source to dateFormat");
+		}
 	}
-	else if (source == "MDY")
+
+	string getFullCurrentDate()
 	{
-		return Log::dateFormat::MDY;
+		string format;
+		format.resize(20);
+		tm calendarTime = getGMTTime();
+
+		switch (logDateFormat)
+		{
+		case dateFormat::DMY:
+			strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+			break;
+
+		case dateFormat::MDY:
+			strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+			break;
+
+		case dateFormat::YMD:
+			strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+			break;
+
+		default:
+			break;
+		}
+
+		format.pop_back();
+
+		return format;
 	}
-	else if (source == "YMD")
+
+	string getLogLibraryVersion()
 	{
-		return Log::dateFormat::YMD;
+		string version = "1.0.0";
+
+		return version;
 	}
-	else
+
+	void init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
 	{
-		throw invalid_argument("Can't convert source to dateFormat");
+		endlAfterLog = endlAfterLog;
+		logDateFormat = logDateFormat;
+		basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+		currentLogFilePath = basePath;
+
+		currentLogFilePath /= "logs";
+
+		if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
+		{
+			nextLogFile();
+		}
+		else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
+		{
+			cerr << currentLogFilePath << " must be directory" << endl;
+		}
+		else if (!filesystem::exists(currentLogFilePath))
+		{
+			filesystem::create_directories(currentLogFilePath);
+
+			nextLogFile();
+		}
 	}
+
+	bool isInitialized()
+	{
+		return filesystem::exists(currentLogFilePath);
+	}
+
+	const filesystem::path& getCurrentLogFilePath()
+	{
+		return currentLogFilePath;
+	}
+
 }
 
-string Log::getFullCurrentDate()
-{
-	string format;
-	format.resize(20);
-	tm calendarTime = Log::getGMTTime();
-
-	switch (logDateFormat)
-	{
-	case Log::dateFormat::DMY:
-		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case Log::dateFormat::MDY:
-		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case Log::dateFormat::YMD:
-		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
-		break;
-
-	default:
-		break;
-	}
-
-	format.pop_back();
-
-	return format;
-}
-
-void Log::nextLogFile()
+void nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
 
-	tm curTime = Log::getGMTTime();
+	tm curTime = getGMTTime();
 	string curDate;
 
 	getDate(curDate, &curTime);
@@ -106,10 +175,10 @@ void Log::nextLogFile()
 	logFile.open(currentLogFilePath.append(format).replace_extension(fileExtension));
 }
 
-void Log::newLogFolder()
+void newLogFolder()
 {
 	filesystem::path current(basePath);
-	tm calendarTime = Log::getGMTTime();
+	tm calendarTime = getGMTTime();
 	string curDate;
 
 	current /= "logs";
@@ -123,7 +192,7 @@ void Log::newLogFolder()
 	currentLogFilePath = move(current);
 }
 
-bool Log::validation(const string& format, size_t count)
+bool validation(const string& format, size_t count)
 {
 	vector<size_t> values;
 	size_t next = format.find("{}");
@@ -139,9 +208,9 @@ bool Log::validation(const string& format, size_t count)
 	return values.size() == count;
 }
 
-bool Log::checkDate()
+bool checkDate()
 {
-	tm calendarTime = Log::getGMTTime();
+	tm calendarTime = getGMTTime();
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
@@ -152,12 +221,12 @@ bool Log::checkDate()
 	return logFileDate == currentDate;
 }
 
-bool Log::checkFileSize(const filesystem::path& filePath)
+bool checkFileSize(const filesystem::path& filePath)
 {
 	return filesystem::file_size(filePath) < logFileSize;
 }
 
-string Log::getCurrentThread()
+string getCurrentThread()
 {
 	ostringstream format;
 
@@ -166,21 +235,21 @@ string Log::getCurrentThread()
 	return format.str();
 }
 
-void Log::getDate(string& outDate, const tm* time)
+void getDate(string& outDate, const tm* time)
 {
 	outDate.resize(cDateSize);
 
 	switch (logDateFormat)
 	{
-	case Log::dateFormat::DMY:
+	case dateFormat::DMY:
 		strftime(outDate.data(), cDateSize, "%d-%m-%Y", time);
 		break;
 
-	case Log::dateFormat::MDY:
+	case dateFormat::MDY:
 		strftime(outDate.data(), cDateSize, "%m-%d-%Y", time);
 		break;
 
-	case Log::dateFormat::YMD:
+	case dateFormat::YMD:
 		strftime(outDate.data(), cDateSize, "%Y-%m-%d", time);
 		break;
 
@@ -191,7 +260,7 @@ void Log::getDate(string& outDate, const tm* time)
 	outDate.resize(cPlusPlusDateSize);
 }
 
-tm Log::getGMTTime()
+tm getGMTTime()
 {
 	tm calendarTime;
 	time_t epochTime;
@@ -205,48 +274,6 @@ tm Log::getGMTTime()
 #endif
 
 	return calendarTime;
-}
-
-string Log::getVersion()
-{
-	string version = "1.0.0";
-
-	return version;
-}
-
-void Log::init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
-{
-	Log::endlAfterLog = endlAfterLog;
-	Log::logDateFormat = logDateFormat;
-	basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
-	currentLogFilePath = basePath;
-
-	currentLogFilePath /= "logs";
-
-	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
-	{
-		nextLogFile();
-	}
-	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
-	{
-		cerr << currentLogFilePath << " must be directory" << endl;
-	}
-	else if (!filesystem::exists(currentLogFilePath))
-	{
-		filesystem::create_directories(currentLogFilePath);
-
-		nextLogFile();
-	}
-}
-
-bool Log::isInitialized()
-{
-	return filesystem::exists(currentLogFilePath);
-}
-
-const filesystem::path Log::getCurrentLogFilePath()
-{
-	return Log::currentLogFilePath;
 }
 
 #ifndef __LINUX__
