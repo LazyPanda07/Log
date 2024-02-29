@@ -1,6 +1,3 @@
-#include <iostream>
-#include <filesystem>
-
 #include "gtest/gtest.h"
 
 #include "Log.h"
@@ -8,8 +5,6 @@
 TEST(Log, Logging)
 {
 	Log::init();
-
-    std::cout << std::filesystem::exists(Log::getCurrentLogFilePath()) << std::endl;
 
     Log::info("Information message on line {}", __LINE__);
 
