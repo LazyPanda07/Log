@@ -73,6 +73,21 @@ namespace Log
 	/**
 	* @brief For internal usage
 	*/
+	LOG_API_FUNCTION bool __validation(const std::string& format, size_t count);
+
+	/**
+	* @brief For internal usage
+	*/
+	LOG_API_FUNCTION std::string __getCurrentThread();
+
+	/**
+	* @brief For internal usage
+	*/
+	LOG_API_FUNCTION bool __checkDate();
+
+	/**
+	* @brief For internal usage
+	*/
 	template<typename T, typename... Args>
 	void __stringFormat(std::string& format, T&& value, Args&&... args);
 
@@ -151,7 +166,7 @@ namespace Log
 	template<typename... Args>
 	void Log::__log(level type, std::string&& format, Args&&... args)
 	{
-		if (validation(format, sizeof...(args)))
+		if (__validation(format, sizeof...(args)))
 		{
 			__stringFormat(format, std::forward<Args>(args)...);
 
@@ -186,13 +201,13 @@ namespace Log
 				return;
 			}
 
-			additionalInformation += "] GMT " + getFullCurrentDate() + " " + getCurrentThread() + " ";
+			additionalInformation += "] GMT " + getFullCurrentDate() + " " + __getCurrentThread() + " ";
 
 			format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
 			std::unique_lock<std::mutex> lock(writeLock);
 
-			if (std::filesystem::file_size(currentLogFilePath) >= logFileSize || !checkDate())
+			if (std::filesystem::file_size(currentLogFilePath) >= logFileSize || !__checkDate())
 			{
 				nextLogFile();
 			}

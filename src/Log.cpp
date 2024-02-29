@@ -27,13 +27,7 @@ static void nextLogFile();
 
 static void newLogFolder();
 
-static bool validation(const std::string& format, size_t count);
-
-static bool checkDate();
-
 static bool checkFileSize(const std::filesystem::path& filePath);
-
-static std::string getCurrentThread();
 
 static void getDate(std::string& outDate, const tm* time);
 
@@ -132,6 +126,43 @@ namespace Log
 		return currentLogFilePath;
 	}
 
+	bool __validation(const string& format, size_t count)
+	{
+		vector<size_t> values;
+		size_t next = format.find("{}");
+
+		values.reserve(count);
+
+		while (next != string::npos)
+		{
+			values.push_back(next);
+			next = format.find("{}", next + 1);
+		}
+
+		return values.size() == count;
+	}
+
+	string __getCurrentThread()
+	{
+		ostringstream format;
+
+		format << "thread id = " << this_thread::get_id() << "	";
+
+		return format.str();
+	}
+
+	bool __checkDate()
+	{
+		tm calendarTime = getGMTTime();
+
+		string currentDate;
+		string logFileDate = currentLogFilePath.filename().string();
+		logFileDate.resize(cPlusPlusDateSize);
+
+		getDate(currentDate, &calendarTime);
+
+		return logFileDate == currentDate;
+	}
 }
 
 void nextLogFile()
@@ -145,10 +176,10 @@ void nextLogFile()
 
 	for (const auto& i : it)
 	{
-		string checkDate = i.path().filename().string();
-		checkDate.resize(cPlusPlusDateSize);
+		string __checkDate = i.path().filename().string();
+		__checkDate.resize(cPlusPlusDateSize);
 
-		if (curDate == checkDate)
+		if (curDate == __checkDate)
 		{
 			filesystem::directory_iterator logFiles(i);
 
@@ -192,47 +223,9 @@ void newLogFolder()
 	currentLogFilePath = move(current);
 }
 
-bool validation(const string& format, size_t count)
-{
-	vector<size_t> values;
-	size_t next = format.find("{}");
-
-	values.reserve(count);
-
-	while (next != string::npos)
-	{
-		values.push_back(next);
-		next = format.find("{}", next + 1);
-	}
-
-	return values.size() == count;
-}
-
-bool checkDate()
-{
-	tm calendarTime = getGMTTime();
-
-	string currentDate;
-	string logFileDate = currentLogFilePath.filename().string();
-	logFileDate.resize(cPlusPlusDateSize);
-
-	getDate(currentDate, &calendarTime);
-
-	return logFileDate == currentDate;
-}
-
 bool checkFileSize(const filesystem::path& filePath)
 {
 	return filesystem::file_size(filePath) < logFileSize;
-}
-
-string getCurrentThread()
-{
-	ostringstream format;
-
-	format << "thread id = " << this_thread::get_id() << "	";
-
-	return format.str();
 }
 
 void getDate(string& outDate, const tm* time)
