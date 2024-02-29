@@ -4,6 +4,7 @@ name: CI
 on:
   push:
     branches: [master, dev]
+  workflow_dispatch:
 
 
 jobs:
@@ -66,7 +67,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        shared: [[ON, ""], [OFF, ""]]
+        shared: [[OFF, ""], [OFF, ""]]
 
     steps:
     - uses: actions/checkout@v4
