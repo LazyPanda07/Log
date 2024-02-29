@@ -15,10 +15,6 @@ TEST(Log, Logging)
     Log::fatalError("Fatal error message on line {}", __LINE__);
 
     std::ifstream in(Log::getCurrentLogFilePath());
-    std::ostringstream os;
-
-    os << in.rdbuf();
-
     std::string tem;
 
     std::getline(in, tem);
