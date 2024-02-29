@@ -2,7 +2,7 @@
 
 #ifdef LOG_DLL
 #ifdef __LINUX__
-#define __attribute__((visibility("default")))
+#define LOG_API __attribute__((visibility("default")))
 #else
 #define LOG_API __declspec(dllexport)
 
