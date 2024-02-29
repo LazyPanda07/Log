@@ -3,6 +3,7 @@
 #include <sstream>
 #include <ctime>
 #include <vector>
+#include <thread>
 
 #ifdef __LINUX__
 #include <time.h>
