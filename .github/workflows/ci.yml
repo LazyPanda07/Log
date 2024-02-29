@@ -66,7 +66,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-        shared: [[ON, "DLL"], [OFF, ""]]
+        shared: [[ON, ""], [OFF, ""]]
 
     steps:
     - uses: actions/checkout@v4
