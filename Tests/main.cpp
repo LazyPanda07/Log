@@ -42,7 +42,7 @@ TEST(Log, ChangingLogFile)
 {
     Log::init();
 
-    std::string currentLogFile = Log::getCurrentLogFilePath().str();
+    std::string currentLogFile = Log::getCurrentLogFilePath().string();
 
     for (size_t i = 0; i < 1'000'000'000; i++)
     {
