@@ -44,6 +44,7 @@ bool Log::validation(const string& format, size_t count) const
 	while (next != string::npos)
 	{
 		values.push_back(next);
+
 		next = format.find("{}", next + 1);
 	}
 
@@ -63,7 +64,7 @@ void Log::write(const string& data)
 
 	if (currentLogFileSize >= logFileSize || !checkDate())
 	{
-		nextLogFile();
+		this->nextLogFile();
 	}
 
 	logFile << data << endl;
@@ -73,10 +74,10 @@ void Log::nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
 
-	tm curTime = getGMTTime();
+	tm curTime = this->getGMTTime();
 	string curDate;
 
-	getDate(curDate, &curTime);
+	this->getDate(curDate, &curTime);
 
 	for (const auto& i : it)
 	{
@@ -115,12 +116,12 @@ void Log::nextLogFile()
 void Log::newLogFolder()
 {
 	filesystem::path current(basePath);
-	tm calendarTime = getGMTTime();
+	tm calendarTime = this->getGMTTime();
 	string curDate;
 
 	current /= "logs";
 
-	getDate(curDate, &calendarTime);
+	this->getDate(curDate, &calendarTime);
 
 	current /= curDate;
 
@@ -131,13 +132,13 @@ void Log::newLogFolder()
 
 bool Log::checkDate() const
 {
-	tm calendarTime = getGMTTime();
+	tm calendarTime = this->getGMTTime();
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
 	logFileDate.resize(cPlusPlusDateSize);
 
-	getDate(currentDate, &calendarTime);
+	this->getDate(currentDate, &calendarTime);
 
 	return logFileDate == currentDate;
 }
@@ -203,17 +204,17 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
-		nextLogFile();
+		this->nextLogFile();
 	}
 	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
 	{
-		cerr << currentLogFilePath << " must be directory" << endl;
+		throw runtime_error(currentLogFilePath.string() + " must be directory");
 	}
 	else if (!filesystem::exists(currentLogFilePath))
 	{
 		filesystem::create_directories(currentLogFilePath);
 
-		nextLogFile();
+		this->nextLogFile();
 	}
 }
 

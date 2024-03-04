@@ -33,13 +33,12 @@
 
 # VS folders
 .vs/
-x64/
-Debug/
-Release/
+build/
+out/
 bin/
+
+# Google Test
+gtest/
 
 # VS sln file
 *.sln
-
-# Test project
-Test/

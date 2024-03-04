@@ -97,8 +97,10 @@ private:
 	void log(level type, std::string&& format, std::string_view category, Args&&... args);
 
 public:
-	/// @brief Current date with selected dateFormat
-	/// @return 
+	/**
+	 * @brief Current date with selected dateFormat
+	 * @return 
+	 */
 	static std::string getFullCurrentDate();
 
 	/**
@@ -192,14 +194,12 @@ void Log::stringFormat(std::string& format, Args&&... args)
 template<typename... Args>
 void Log::log(level type, std::string&& format, std::string_view category, Args&&... args)
 {
-	if (!validation(format, sizeof...(args)))
+	if (!this->validation(format, sizeof...(args)))
 	{
-		std::cerr << "Not enough arguments for format string" << std::endl;
-
-		return;
+		throw std::runtime_error("Not enough arguments for format string");
 	}
 
-	stringFormat(format, std::forward<Args>(args)...);
+	this->stringFormat(format, std::forward<Args>(args)...);
 
 	std::string additionalInformation;
 	additionalInformation.reserve(additionalInformationSize);
@@ -242,5 +242,5 @@ void Log::log(level type, std::string&& format, std::string_view category, Args&
 
 	format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
-	write(format);
+	this->write(format);
 }
