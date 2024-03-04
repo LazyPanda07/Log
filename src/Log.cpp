@@ -16,18 +16,6 @@
 
 using namespace std;
 
-void nextLogFile();
-
-void newLogFolder();
-
-bool checkDate();
-
-bool checkFileSize(const filesystem::path& filePath);
-
-void getDate(string& outDate, const tm* time);
-
-tm getGMTTime();
-
 Log::dateFormat Log::dateFormatFromString(const string& source) const
 {
 	if (source == "DMY")
@@ -184,6 +172,18 @@ void Log::getDate(string& outDate, const tm* time) const
 	outDate.resize(cPlusPlusDateSize);
 }
 
+Log::Log()
+{
+	Log::configure();
+}
+
+Log& Log::getInstance()
+{
+	static Log instance;
+
+	return instance;
+}
+
 tm Log::getGMTTime() const
 {
 	tm calendarTime;
@@ -198,18 +198,6 @@ tm Log::getGMTTime() const
 #endif
 
 	return calendarTime;
-}
-
-Log::Log()
-{
-	Log::configure();
-}
-
-Log& Log::getInstance()
-{
-	static Log instance;
-
-	return instance;
 }
 
 string Log::getFullCurrentDate()
