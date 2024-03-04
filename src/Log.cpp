@@ -219,7 +219,7 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 
 Log::Log()
 {
-	Log::init();
+	this->init();
 }
 
 Log& Log::getInstance()
