@@ -203,7 +203,7 @@ void Log::log(level type, std::string&& format, std::string_view category, Args&
 	additionalInformation.reserve(additionalInformationSize);
 
 	additionalInformation += '[' + getFullCurrentDate() + " UTC][" 
-		+ getCurrentThreadId() + "] " +
+		+ getCurrentThreadId() + "] "
 		+ category + ": ";
 
 	switch (type)
