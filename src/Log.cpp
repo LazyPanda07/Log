@@ -172,19 +172,7 @@ void Log::getDate(string& outDate, const tm* time) const
 	outDate.resize(cPlusPlusDateSize);
 }
 
-Log::Log()
-{
-	Log::configure();
-}
-
-Log& Log::getInstance()
-{
-	static Log instance;
-
-	return instance;
-}
-
-tm Log::getGMTTime()
+tm Log::getGMTTime() const
 {
 	tm calendarTime;
 	time_t epochTime;
@@ -200,13 +188,27 @@ tm Log::getGMTTime()
 	return calendarTime;
 }
 
+Log::Log()
+{
+	Log::configure();
+}
+
+Log& Log::getInstance()
+{
+	static Log instance;
+
+	return instance;
+}
+
 string Log::getFullCurrentDate()
 {
 	string format;
-	format.resize(20);
-	tm calendarTime = getGMTTime();
+	Log& instance = Log::getInstance();
+	tm calendarTime = instance.getGMTTime();
 
-	switch (logDateFormat)
+	format.resize(20);
+
+	switch (instance.logDateFormat)
 	{
 	case dateFormat::DMY:
 		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);

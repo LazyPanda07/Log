@@ -66,6 +66,8 @@ private:
 
 	void getDate(std::string& outDate, const tm* time) const;
 
+	tm getGMTTime() const;
+
 private:
 	Log();
 
@@ -81,8 +83,6 @@ private:
 
 private:
 	static Log& getInstance();
-
-	static tm getGMTTime();
 
 private:
 	template<typename T, typename... Args>
