@@ -184,7 +184,7 @@ Log& Log::getInstance()
 	return instance;
 }
 
-tm Log::getGMTTime() const
+tm Log::getGMTTime()
 {
 	tm calendarTime;
 	time_t epochTime;
