@@ -188,9 +188,38 @@ tm Log::getGMTTime() const
 	return calendarTime;
 }
 
+void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
+{
+	unique_lock<mutex> lock(writeMutex);
+
+	this->logDateFormat = logDateFormat;
+	basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+	currentLogFilePath = basePath;
+	
+	if (currentLogFilePath == filesystem::current_path())
+	{
+		currentLogFilePath /= "logs";
+	}	
+
+	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
+	{
+		nextLogFile();
+	}
+	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
+	{
+		cerr << currentLogFilePath << " must be directory" << endl;
+	}
+	else if (!filesystem::exists(currentLogFilePath))
+	{
+		filesystem::create_directories(currentLogFilePath);
+
+		nextLogFile();
+	}
+}
+
 Log::Log()
 {
-	Log::configure();
+	Log::init();
 }
 
 Log& Log::getInstance()
@@ -240,33 +269,7 @@ string Log::getLogLibraryVersion()
 
 void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 {
-	Log& instance = Log::getInstance();
-
-	unique_lock<mutex> lock(instance.writeMutex);
-
-	instance.logDateFormat = logDateFormat;
-	instance.basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
-	instance.currentLogFilePath = instance.basePath;
-	
-	if (instance.currentLogFilePath == filesystem::current_path())
-	{
-		instance.currentLogFilePath /= "logs";
-	}	
-
-	if (filesystem::exists(instance.currentLogFilePath) && filesystem::is_directory(instance.currentLogFilePath))
-	{
-		instance.nextLogFile();
-	}
-	else if (filesystem::exists(instance.currentLogFilePath) && !filesystem::is_directory(instance.currentLogFilePath))
-	{
-		cerr << instance.currentLogFilePath << " must be directory" << endl;
-	}
-	else if (!filesystem::exists(instance.currentLogFilePath))
-	{
-		filesystem::create_directories(instance.currentLogFilePath);
-
-		instance.nextLogFile();
-	}
+	Log::getInstance().init(logDateFormat, pathToLogs);
 }
 
 bool Log::isInitialized()

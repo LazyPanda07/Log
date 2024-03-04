@@ -68,6 +68,8 @@ private:
 
 	tm getGMTTime() const;
 
+	void init(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
+
 private:
 	Log();
 
