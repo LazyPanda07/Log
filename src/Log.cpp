@@ -189,6 +189,36 @@ tm Log::getGMTTime() const
 	return calendarTime;
 }
 
+string Log::getFullCurrentDate() const
+{
+	string format;
+	tm calendarTime = this->getGMTTime();
+
+	format.resize(20);
+
+	switch (logDateFormat)
+	{
+	case dateFormat::DMY:
+		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case dateFormat::MDY:
+		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case dateFormat::YMD:
+		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+		break;
+
+	default:
+		break;
+	}
+
+	format.pop_back();
+
+	return format;
+}
+
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 {
 	unique_lock<mutex> lock(writeMutex);
@@ -228,37 +258,6 @@ Log& Log::getInstance()
 	static Log instance;
 
 	return instance;
-}
-
-string Log::getFullCurrentDate()
-{
-	string format;
-	Log& instance = Log::getInstance();
-	tm calendarTime = instance.getGMTTime();
-
-	format.resize(20);
-
-	switch (instance.logDateFormat)
-	{
-	case dateFormat::DMY:
-		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case dateFormat::MDY:
-		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
-		break;
-
-	case dateFormat::YMD:
-		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
-		break;
-
-	default:
-		break;
-	}
-
-	format.pop_back();
-
-	return format;
 }
 
 string Log::getLogLibraryVersion()

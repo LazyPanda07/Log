@@ -68,6 +68,8 @@ private:
 
 	tm getGMTTime() const;
 
+	std::string getFullCurrentDate() const;
+
 	void init(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
 
 private:
@@ -97,12 +99,6 @@ private:
 	void log(level type, std::string&& format, std::string_view category, Args&&... args);
 
 public:
-	/**
-	 * @brief Current date with selected dateFormat
-	 * @return 
-	 */
-	static std::string getFullCurrentDate();
-
 	/**
 	* @brief Get Log library version
 	*/
