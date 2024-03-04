@@ -271,12 +271,12 @@ void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs
 
 bool Log::isInitialized()
 {
-	return filesystem::exists(currentLogFilePath);
+	return filesystem::exists(Log::getInstance().currentLogFilePath);
 }
 
 const filesystem::path& Log::getCurrentLogFilePath()
 {
-	return currentLogFilePath;
+	return Log::getInstance().currentLogFilePath;
 }
 
 #ifndef __LINUX__
