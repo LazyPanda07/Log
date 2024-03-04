@@ -16,171 +16,72 @@
 
 using namespace std;
 
-static inline filesystem::path currentLogFilePath;
-static inline filesystem::path basePath;
-static inline mutex writeMutex;
-static inline ofstream logFile;
-static inline Log::dateFormat logDateFormat;
-static inline bool endlAfterLog;
-static size_t currentLogFileSize;
+void nextLogFile();
 
-static void nextLogFile();
+void newLogFolder();
 
-static void newLogFolder();
+bool checkDate();
 
-static bool checkDate();
+bool checkFileSize(const filesystem::path& filePath);
 
-static bool checkFileSize(const filesystem::path& filePath);
+void getDate(string& outDate, const tm* time);
 
-static void getDate(string& outDate, const tm* time);
+tm getGMTTime();
 
-static tm getGMTTime();
-
-namespace Log
+Log::dateFormat Log::dateFormatFromString(const string& source) const
 {
-	dateFormat dateFormatFromString(const string& source)
+	if (source == "DMY")
 	{
-		if (source == "DMY")
-		{
-			return dateFormat::DMY;
-		}
-		else if (source == "MDY")
-		{
-			return dateFormat::MDY;
-		}
-		else if (source == "YMD")
-		{
-			return dateFormat::YMD;
-		}
-		else
-		{
-			throw invalid_argument("Can't convert source to dateFormat");
-		}
+		return dateFormat::DMY;
 	}
-
-	string getFullCurrentDate()
+	else if (source == "MDY")
 	{
-		string format;
-		format.resize(20);
-		tm calendarTime = getGMTTime();
-
-		switch (logDateFormat)
-		{
-		case dateFormat::DMY:
-			strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
-			break;
-
-		case dateFormat::MDY:
-			strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
-			break;
-
-		case dateFormat::YMD:
-			strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
-			break;
-
-		default:
-			break;
-		}
-
-		format.pop_back();
-
-		return format;
+		return dateFormat::MDY;
 	}
-
-	string getLogLibraryVersion()
+	else if (source == "YMD")
 	{
-		string version = "1.0.0";
-
-		return version;
+		return dateFormat::YMD;
 	}
-
-	void init(dateFormat logDateFormat, bool endlAfterLog, const filesystem::path& pathToLogs)
-	{
-		unique_lock<mutex> lock(writeMutex);
-
-		endlAfterLog = endlAfterLog;
-		logDateFormat = logDateFormat;
-		basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
-		currentLogFilePath = basePath;
-
-		currentLogFilePath /= "logs";
-
-		if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
-		{
-			nextLogFile();
-		}
-		else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
-		{
-			cerr << currentLogFilePath << " must be directory" << endl;
-		}
-		else if (!filesystem::exists(currentLogFilePath))
-		{
-			filesystem::create_directories(currentLogFilePath);
-
-			nextLogFile();
-		}
-	}
-
-	bool isInitialized()
-	{
-		return filesystem::exists(currentLogFilePath);
-	}
-
-	const filesystem::path& getCurrentLogFilePath()
-	{
-		return currentLogFilePath;
-	}
-
-	bool __validation(const string& format, size_t count)
-	{
-		vector<size_t> values;
-		size_t next = format.find("{}");
-
-		values.reserve(count);
-
-		while (next != string::npos)
-		{
-			values.push_back(next);
-			next = format.find("{}", next + 1);
-		}
-
-		return values.size() == count;
-	}
-
-	string __getCurrentThread()
-	{
-		ostringstream format;
-
-		format << "thread id = " << this_thread::get_id() << "	";
-
-		return format.str();
-	}
-
-	void __write(const string& data)
-	{
-		unique_lock<mutex> lock(writeMutex);
-
-		currentLogFileSize += data.size();
-
-		if (currentLogFileSize >= logFileSize || !checkDate())
-		{
-			nextLogFile();
-		}
-
-		logFile << data;
-
-		if (endlAfterLog)
-		{
-			logFile << endl;
-		}
-		else
-		{
-			logFile.flush();
-		}
-	}
+	
+	throw invalid_argument("Can't convert source to dateFormat");
 }
 
-void nextLogFile()
+bool Log::validation(const string& format, size_t count) const
+{
+	vector<size_t> values;
+	size_t next = format.find("{}");
+
+	values.reserve(count);
+
+	while (next != string::npos)
+	{
+		values.push_back(next);
+		next = format.find("{}", next + 1);
+	}
+
+	return values.size() == count;
+}
+
+string Log::getCurrentThreadId() const
+{
+	return (ostringstream() << "thread id = " << this_thread::get_id()).str();
+}
+
+void Log::write(const string& data)
+{
+	unique_lock<mutex> lock(writeMutex);
+
+	currentLogFileSize += data.size();
+
+	if (currentLogFileSize >= logFileSize || !checkDate())
+	{
+		nextLogFile();
+	}
+
+	logFile << data << endl;
+}
+
+void Log::nextLogFile()
 {
 	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
 
@@ -223,7 +124,7 @@ void nextLogFile()
 	logFile.open(currentLogFilePath.append(format).replace_extension(fileExtension));
 }
 
-void newLogFolder()
+void Log::newLogFolder()
 {
 	filesystem::path current(basePath);
 	tm calendarTime = getGMTTime();
@@ -240,7 +141,7 @@ void newLogFolder()
 	currentLogFilePath = move(current);
 }
 
-bool checkDate()
+bool Log::checkDate() const
 {
 	tm calendarTime = getGMTTime();
 
@@ -253,12 +154,12 @@ bool checkDate()
 	return logFileDate == currentDate;
 }
 
-bool checkFileSize(const filesystem::path& filePath)
+bool Log::checkFileSize(const filesystem::path& filePath) const
 {
 	return filesystem::file_size(filePath) < logFileSize;
 }
 
-void getDate(string& outDate, const tm* time)
+void Log::getDate(string& outDate, const tm* time) const
 {
 	outDate.resize(cDateSize);
 
@@ -283,7 +184,7 @@ void getDate(string& outDate, const tm* time)
 	outDate.resize(cPlusPlusDateSize);
 }
 
-tm getGMTTime()
+tm Log::getGMTTime() const
 {
 	tm calendarTime;
 	time_t epochTime;
@@ -297,6 +198,95 @@ tm getGMTTime()
 #endif
 
 	return calendarTime;
+}
+
+Log::Log()
+{
+	Log::configure();
+}
+
+Log& Log::getInstance()
+{
+	static Log instance;
+
+	return instance;
+}
+
+string Log::getFullCurrentDate()
+{
+	string format;
+	format.resize(20);
+	tm calendarTime = getGMTTime();
+
+	switch (logDateFormat)
+	{
+	case dateFormat::DMY:
+		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case dateFormat::MDY:
+		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+		break;
+
+	case dateFormat::YMD:
+		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+		break;
+
+	default:
+		break;
+	}
+
+	format.pop_back();
+
+	return format;
+}
+
+string Log::getLogLibraryVersion()
+{
+	string version = "1.0.0";
+
+	return version;
+}
+
+void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs)
+{
+	Log& instance = Log::getInstance();
+
+	unique_lock<mutex> lock(instance.writeMutex);
+
+	instance.logDateFormat = logDateFormat;
+	instance.basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+	instance.currentLogFilePath = instance.basePath;
+	
+	if (instance.currentLogFilePath == filesystem::current_path())
+	{
+		instance.currentLogFilePath /= "logs";
+	}	
+
+	if (filesystem::exists(instance.currentLogFilePath) && filesystem::is_directory(instance.currentLogFilePath))
+	{
+		instance.nextLogFile();
+	}
+	else if (filesystem::exists(instance.currentLogFilePath) && !filesystem::is_directory(instance.currentLogFilePath))
+	{
+		cerr << instance.currentLogFilePath << " must be directory" << endl;
+	}
+	else if (!filesystem::exists(instance.currentLogFilePath))
+	{
+		filesystem::create_directories(instance.currentLogFilePath);
+
+		instance.nextLogFile();
+	}
+}
+
+bool Log::isInitialized()
+{
+	return filesystem::exists(currentLogFilePath);
+}
+
+const filesystem::path& Log::getCurrentLogFilePath()
+{
+	return currentLogFilePath;
 }
 
 #ifndef __LINUX__

@@ -2,14 +2,14 @@
 
 #ifdef LOG_DLL
 #ifdef __LINUX__
-#define LOG_API_FUNCTION extern "C" __attribute__((visibility("default")))
+#define LOG_API __attribute__((visibility("default")))
 #else
-#define LOG_API_FUNCTION extern "C" __declspec(dllexport)
+#define LOG_API __declspec(dllexport)
 
 #pragma warning(disable: 4251)
 #endif
 #else
-#define LOG_API_FUNCTION
+#define LOG_API
 #endif // LOG_DLL
 
 #include <iostream>
@@ -21,8 +21,9 @@
 #include "CompileTimeCheck.h"
 #include "LogConstants.h"
 
-namespace Log
+class LOG_API Log
 {
+public:
 	enum class dateFormat
 	{
 		DMY,
@@ -38,178 +39,202 @@ namespace Log
 		fatalError
 	};
 
-	LOG_API_FUNCTION dateFormat dateFormatFromString(const std::string& source);
+private:
+	std::filesystem::path currentLogFilePath;
+	std::filesystem::path basePath;
+	std::mutex writeMutex;
+	std::ofstream logFile;
+	dateFormat logDateFormat;
+	size_t currentLogFileSize;
 
+private:
+	dateFormat dateFormatFromString(const std::string& source) const;
+
+	bool validation(const std::string& format, size_t count) const;
+
+	std::string getCurrentThreadId() const;
+
+	void write(const std::string& data);
+
+	void nextLogFile();
+
+	void newLogFolder();
+
+	bool checkDate() const;
+
+	bool checkFileSize(const std::filesystem::path& filePath) const;
+
+	void getDate(std::string& outDate, const tm* time) const;
+
+	tm getGMTTime() const;
+
+private:
+	Log();
+
+	Log(const Log&) = delete;
+
+	Log(Log&&) noexcept = delete;
+
+	Log& operator = (const Log&) = delete;
+
+	Log& operator = (Log&&) noexcept = delete;
+
+	~Log() = default;
+
+private:
+	static Log& getInstance();
+
+private:
+	template<typename T, typename... Args>
+	void stringFormat(std::string& format, T&& value, Args&&... args);
+
+	template<typename... Args>
+	void stringFormat(std::string& format, Args&&... args);
+
+	template<typename... Args>
+	void log(level type, std::string&& format, std::string_view category, Args&&... args);
+
+public:
 	/// @brief Current date with selected dateFormat
 	/// @return 
-	LOG_API_FUNCTION std::string getFullCurrentDate();
+	static std::string getFullCurrentDate();
 
 	/**
 	* @brief Get Log library version
 	*/
-	LOG_API_FUNCTION std::string getLogLibraryVersion();
-
-	/// @brief Init logFile
-	/// @param logDateFormat 
-	/// @param endlAfterLog 
-	LOG_API_FUNCTION void init(dateFormat logDateFormat = dateFormat::DMY, bool endlAfterLog = true, const std::filesystem::path& pathToLogs = "");
-
-	LOG_API_FUNCTION bool isInitialized();
-
-	LOG_API_FUNCTION const std::filesystem::path& getCurrentLogFilePath();
-
-	template<typename... Args>
-	void info(std::string&& format, Args&&... args);
-
-	template<typename... Args>
-	void warning(std::string&& format, Args&&... args);
-
-	template<typename... Args>
-	void error(std::string&& format, Args&&... args);
-
-	template<typename... Args>
-	void fatalError(std::string&& format, Args&&... args);
+	static std::string getLogLibraryVersion();
 
 	/**
-	* @brief For internal usage
+	* @brief Additional configuration
+	* @param logDateFormat One of DMY, MDY, YMD
+	* @param pathToLogs Path to logs folder
 	*/
-	LOG_API_FUNCTION bool __validation(const std::string& format, size_t count);
+	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
 
-	/**
-	* @brief For internal usage
-	*/
-	LOG_API_FUNCTION std::string __getCurrentThread();
+	static bool isInitialized();
 
-	/**
-	* @brief For internal usage
-	*/
-	LOG_API_FUNCTION void __write(const std::string& data);
+	static const std::filesystem::path& getCurrentLogFilePath();
 
-	/**
-	* @brief For internal usage
-	*/
-	template<typename T, typename... Args>
-	void __stringFormat(std::string& format, T&& value, Args&&... args);
-
-	/**
-	* @brief For internal usage
-	*/
 	template<typename... Args>
-	void __stringFormat(std::string& format, Args&&... args);
+	static void info(std::string&& format, std::string_view category, Args&&... args);
 
-	/**
-	* @brief For internal usage
-	*/
 	template<typename... Args>
-	void __log(level type, std::string&& format, Args&&... args);
+	static void warning(std::string&& format, std::string_view category, Args&&... args);
+
+	template<typename... Args>
+	static void error(std::string&& format, std::string_view category, Args&&... args);
+
+	template<typename... Args>
+	static void fatalError(std::string&& format, std::string_view category, int exitCode, Args&&... args);
 };
 
-namespace Log
+template<typename... Args>
+void Log::info(std::string&& format, std::string_view category, Args&&... args)
 {
-	template<typename... Args>
-	void Log::info(std::string&& format, Args&&... args)
+	Log::getInstance().log(level::info, std::move(format), category, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Log::warning(std::string&& format, std::string_view category, Args&&... args)
+{
+	Log::getInstance().log(level::warning, std::move(format), category, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Log::error(std::string&& format, std::string_view category, Args&&... args)
+{
+	Log::getInstance().log(level::error, std::move(format), category, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Log::fatalError(std::string&& format, std::string_view category, int exitCode, Args&&... args)
+{
+	Log::getInstance().log(level::fatalError, std::move(format), category, std::forward<Args>(args)...);
+
+	exit(exitCode);
+}
+
+template<typename T, typename... Args>
+void Log::stringFormat(std::string& format, T&& value, Args&&... args)
+{
+	size_t first = format.find('{');
+	size_t last = format.find('}') + 1;
+
+	if constexpr (std::is_fundamental_v<std::remove_reference_t<decltype(value)>>)
 	{
-		__log(level::info, std::move(format), std::forward<Args>(args)...);
+		format.replace(format.begin() + first, format.begin() + last, std::to_string(value).data());
+	}
+	else if constexpr (is_iterable_v<decltype(value)>)
+	{
+		format.replace(format.begin() + first, format.begin() + last, std::begin(value), std::end(value));
+	}
+	else if constexpr (std::is_constructible_v<std::string_view, decltype(value)>)
+	{
+		std::string_view tem(value);
+
+		format.replace(format.begin() + first, format.begin() + last, tem.begin(), tem.end());
 	}
 
-	template<typename... Args>
-	void Log::warning(std::string&& format, Args&&... args)
+	stringFormat(format, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Log::stringFormat(std::string& format, Args&&... args)
+{
+	if constexpr (sizeof...(args))
 	{
-		__log(level::warning, std::move(format), std::forward<Args>(args)...);
+		stringFormat(format, std::forward<Args>(args)...);
+	}
+}
+
+template<typename... Args>
+void Log::log(level type, std::string&& format, std::string_view category, Args&&... args)
+{
+	if (!validation(format, sizeof...(args)))
+	{
+		std::cerr << "Not enough arguments for format string" << std::endl;
+
+		return;
 	}
 
-	template<typename... Args>
-	void Log::error(std::string&& format, Args&&... args)
+	stringFormat(format, std::forward<Args>(args)...);
+
+	std::string additionalInformation;
+	additionalInformation.reserve(additionalInformationSize);
+
+	additionalInformation += '[' + getFullCurrentDate() + " UTC][" 
+		+ getCurrentThreadId() + "] " +
+		+ category + ": ";
+
+	switch (type)
 	{
-		__log(level::error, std::move(format), std::forward<Args>(args)...);
+	case level::info:
+		additionalInformation += "INFO";
+
+		break;
+
+	case level::warning:
+		additionalInformation += "WARNING";
+
+		break;
+
+	case level::error:
+		additionalInformation += "ERROR";
+
+		break;
+
+	case level::fatalError:
+		additionalInformation += "FATAL_ERROR";
+
+		break;
+
+	default:
+		return;
 	}
 
-	template<typename... Args>
-	void Log::fatalError(std::string&& format, Args&&... args)
-	{
-		__log(level::fatalError, std::move(format), std::forward<Args>(args)...);
-	}
+	additionalInformation += ": ";
 
-	template<typename T, typename... Args>
-	void Log::__stringFormat(std::string& format, T&& value, Args&&... args)
-	{
-		size_t first = format.find('{');
-		size_t last = format.find('}') + 1;
+	format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
 
-		if constexpr (std::is_fundamental_v<std::remove_reference_t<decltype(value)>>)
-		{
-			format.replace(format.begin() + first, format.begin() + last, std::to_string(value).data());
-		}
-		else if constexpr (is_iterable_v<decltype(value)>)
-		{
-			format.replace(format.begin() + first, format.begin() + last, std::begin(value), std::end(value));
-		}
-		else if constexpr (std::is_constructible_v<std::string_view, decltype(value)>)
-		{
-			std::string_view tem(value);
-
-			format.replace(format.begin() + first, format.begin() + last, tem.begin(), tem.end());
-		}
-
-		__stringFormat(format, std::forward<Args>(args)...);
-	}
-
-	template<typename... Args>
-	void Log::__stringFormat(std::string& format, Args&&... args)
-	{
-		if constexpr (sizeof...(args))
-		{
-			__stringFormat(format, std::forward<Args>(args)...);
-		}
-	}
-
-	template<typename... Args>
-	void Log::__log(level type, std::string&& format, Args&&... args)
-	{
-		if (__validation(format, sizeof...(args)))
-		{
-			__stringFormat(format, std::forward<Args>(args)...);
-
-			std::string additionalInformation;
-			additionalInformation.reserve(additionalInformationSize);
-
-			additionalInformation += '[';
-
-			switch (type)
-			{
-			case level::info:
-				additionalInformation += "INFO";
-
-				break;
-
-			case level::warning:
-				additionalInformation += "WARNING";
-
-				break;
-
-			case level::error:
-				additionalInformation += "ERROR";
-
-				break;
-
-			case level::fatalError:
-				additionalInformation += "FATAL_ERROR";
-
-				break;
-
-			default:
-				return;
-			}
-
-			additionalInformation += "] GMT " + getFullCurrentDate() + " " + __getCurrentThread() + " ";
-
-			format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
-
-			__write(format);
-		}
-		else
-		{
-			std::cerr << "Not enough arguments for format string" << std::endl;
-		}
-	}
+	write(format);
 }
