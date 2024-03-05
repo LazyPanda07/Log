@@ -21,6 +21,18 @@
 #include "CompileTimeCheck.h"
 #include "LogConstants.h"
 
+#ifdef NDEBUG
+#define LOG_DEBUG_INFO(format, category, ...)
+#define LOG_DEBUG_WARNING(format, category, ...)
+#define LOG_DEBUG_ERROR(format, category, ...)
+#define LOG_DEBUG_FATAL_ERROR(format, category, errorCode, ...)
+#else
+#define LOG_DEBUG_INFO(format, category, ...) Log::info(format, category, __VA_ARGS__)
+#define LOG_DEBUG_WARNING(format, category, ...) Log::warning(format, category, __VA_ARGS__)
+#define LOG_DEBUG_ERROR(format, category, ...) Log::error(format, category, __VA_ARGS__)
+#define LOG_DEBUG_FATAL_ERROR(format, category, errorCode, ...) Log::fatalError(format, category, exitCode, __VA_ARGS__)
+#endif
+
 class LOG_API Log
 {
 public:
