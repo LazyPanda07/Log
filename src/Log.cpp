@@ -53,7 +53,7 @@ bool Log::validation(const string& format, size_t count) const
 
 string Log::getCurrentThreadId() const
 {
-	return (ostringstream() << "thread id = " << this_thread::get_id()).str();
+	return (ostringstream() << "thread id: " << this_thread::get_id()).str();
 }
 
 void Log::write(const string& data)
@@ -110,6 +110,8 @@ void Log::nextLogFile()
 	currentLogFilePath.replace_extension(fileExtension);
 
 	logFile.open(currentLogFilePath);
+
+	currentLogFileSize = 0;
 }
 
 void Log::newLogFolder()
