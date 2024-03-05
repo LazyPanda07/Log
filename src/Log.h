@@ -233,7 +233,7 @@ void Log::log(level type, std::string&& format, std::string_view category, Args&
 	this->stringFormat(format, std::forward<Args>(args)...);
 
 	std::string additionalInformation;
-	additionalInformation.reserve(Log::additionalInformationSize);
+	additionalInformation.reserve(log_constants::additionalInformationSize);
 
 	additionalInformation
 		.append("[")
