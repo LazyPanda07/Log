@@ -46,8 +46,10 @@ TEST(Log, ChangingLogFile)
 
 #ifdef NDEBUG
     auto end = std::chrono::high_resolution_clock::now();
+    auto resultSeconds = static_cast<double>((end - start).count()) / std::chrono::high_resolution_clock::period::den;
 
-    std::cout << static_cast<double>((end - start).count()) / std::chrono::high_resolution_clock::period::den << " seconds" << std::endl;
+    std::cout << resultSeconds << " seconds" << std::endl;
+    std::cout << resultSeconds / 5'000'000 << " seconds per message" << std::endl;
 #endif
 
     ASSERT_NE(Log::getCurrentLogFilePath(), currentLogFile);
