@@ -100,8 +100,9 @@ private:
 
 public:
 	/**
-	* @brief Get Log library version
-	*/
+	 * @brief Get Log library version
+	 * @return 
+	 */
 	static std::string getLogLibraryVersion();
 
 	/**
@@ -111,19 +112,52 @@ public:
 	*/
 	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
 
-	static bool isInitialized();
-
+	/**
+	 * @brief Get current log file path
+	 * @tparam ...Args 
+	 * @param format 
+	 * @param ...args 
+	 */
 	static const std::filesystem::path& getCurrentLogFilePath();
 
+	/**
+	 * @brief Log some information
+	 * @tparam ...Args 
+	 * @param format Information with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
 	template<typename... Args>
 	static void info(std::string&& format, std::string_view category, Args&&... args);
 
+	/**
+	 * @brief Log some warning message
+	 * @tparam ...Args
+	 * @param format Warning message with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
 	template<typename... Args>
 	static void warning(std::string&& format, std::string_view category, Args&&... args);
 
+	/**
+	 * @brief Log some error
+	 * @tparam ...Args
+	 * @param format Error message with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
 	template<typename... Args>
 	static void error(std::string&& format, std::string_view category, Args&&... args);
 
+	/**
+	 * @brief Log and exit
+	 * @tparam ...Args 
+	 * @param format Fatal error message with {} brackets for insertions
+	 * @param category Log category
+	 * @param exitCode Exit code
+	 * @param ...args 
+	 */
 	template<typename... Args>
 	static void fatalError(std::string&& format, std::string_view category, int exitCode, Args&&... args);
 };

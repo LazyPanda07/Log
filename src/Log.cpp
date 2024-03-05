@@ -72,25 +72,21 @@ void Log::write(const string& data)
 
 void Log::nextLogFile()
 {
-	filesystem::directory_iterator it(currentLogFilePath.filename() == parentFolder ? currentLogFilePath : currentLogFilePath.parent_path());
-
 	tm curTime = this->getGMTTime();
 	string curDate;
 
 	this->getDate(curDate, &curTime);
 
-	for (const auto& i : it)
+	for (const auto& i : filesystem::directory_iterator(basePath))
 	{
 		string checkDate = i.path().filename().string();
 		checkDate.resize(cPlusPlusDateSize);
 
 		if (curDate == checkDate)
 		{
-			filesystem::directory_iterator logFiles(i);
-
-			for (const auto& j : logFiles)
+			for (const auto& j : filesystem::directory_iterator(i))
 			{
-				if (checkFileSize(j))
+				if (this->checkFileSize(j))
 				{
 					logFile.open(j.path(), ios::app);
 
@@ -104,13 +100,16 @@ void Log::nextLogFile()
 		}
 	}
 
-	newLogFolder();
+	this->newLogFolder();
 
 	logFile.close();
 
-	string format = Log::getFullCurrentDate();
+	string format = this->getFullCurrentDate();
 
-	logFile.open(currentLogFilePath.append(format).replace_extension(fileExtension));
+	currentLogFilePath /= format;
+	currentLogFilePath.replace_extension(fileExtension);
+
+	logFile.open(currentLogFilePath);
 }
 
 void Log::newLogFolder()
@@ -118,8 +117,6 @@ void Log::newLogFolder()
 	filesystem::path current(basePath);
 	tm calendarTime = this->getGMTTime();
 	string curDate;
-
-	current /= "logs";
 
 	this->getDate(curDate, &calendarTime);
 
@@ -224,13 +221,8 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 	unique_lock<mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
-	basePath = pathToLogs.empty() ? filesystem::current_path() : pathToLogs;
+	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
-	
-	if (currentLogFilePath == filesystem::current_path())
-	{
-		currentLogFilePath /= "logs";
-	}	
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
@@ -270,11 +262,6 @@ string Log::getLogLibraryVersion()
 void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs)
 {
 	Log::getInstance().init(logDateFormat, pathToLogs);
-}
-
-bool Log::isInitialized()
-{
-	return filesystem::exists(Log::getInstance().currentLogFilePath);
 }
 
 const filesystem::path& Log::getCurrentLogFilePath()
