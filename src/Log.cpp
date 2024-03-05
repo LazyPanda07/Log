@@ -102,7 +102,7 @@ void Log::nextLogFile()
 
 	logFile.open
 	(
-		(currentLogFilePath /= this->getFullCurrentDate()).replace_extension(log_constants::fileExtension)
+		(currentLogFilePath /= this->getFullCurrentDate()) += log_constants::fileExtension
 	);
 
 	currentLogFileSize = 0;
