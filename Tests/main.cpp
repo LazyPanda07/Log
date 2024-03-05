@@ -27,13 +27,15 @@ TEST(Log, Logging)
 
 TEST(Log, ChangingLogFile)
 {
+	static constexpr size_t cycles = 2'500'000;
+
 	std::filesystem::path currentLogFile = Log::getCurrentLogFilePath();
 
 #ifdef NDEBUG
 	auto start = std::chrono::high_resolution_clock::now();
 #endif
 
-	for (size_t i = 0; i < 5'000'000; i++)
+	for (size_t i = 0; i < cycles; i++)
 	{
 		Log::info("Log some information with current index {} and line {}", "LogTest", i, __LINE__);
 	}
@@ -43,7 +45,7 @@ TEST(Log, ChangingLogFile)
 	auto resultSeconds = static_cast<double>((end - start).count()) / std::chrono::high_resolution_clock::period::den;
 
 	std::cout << resultSeconds << " seconds" << std::endl;
-	std::cout << resultSeconds / 5'000'000 << " seconds per message" << std::endl;
+	std::cout << resultSeconds / cycles << " seconds per message" << std::endl;
 #endif
 
 	ASSERT_NE(Log::getCurrentLogFilePath(), currentLogFile);
