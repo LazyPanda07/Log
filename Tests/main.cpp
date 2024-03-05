@@ -18,17 +18,17 @@ TEST(Log, Logging)
     std::getline(in, tem);
 
     ASSERT_TRUE(tem.find("INFO") != std::string::npos);
-    ASSERT_TRUE(tem.find("Information message on line 7") != std::string::npos);
+    ASSERT_TRUE(tem.find("Information message on line 9") != std::string::npos);
 
     std::getline(in, tem);
 
     ASSERT_TRUE(tem.find("WARNING") != std::string::npos);
-    ASSERT_TRUE(tem.find("Warning message on line 9") != std::string::npos);
+    ASSERT_TRUE(tem.find("Warning message on line 11") != std::string::npos);
 
     std::getline(in, tem);
 
     ASSERT_TRUE(tem.find("ERROR") != std::string::npos);
-    ASSERT_TRUE(tem.find("Error message on line 11") != std::string::npos);
+    ASSERT_TRUE(tem.find("Error message on line 13") != std::string::npos);
 }
 
 TEST(Log, ChangingLogFile)
