@@ -12,7 +12,7 @@
 
 using namespace std;
 
-static constexpr uint16_t dateSize = 8;
+static constexpr uint16_t dateSize = 10;
 static constexpr uint16_t fullDateSize = 17;
 
 Log::dateFormat Log::dateFormatFromString(const string& source) const
@@ -61,7 +61,7 @@ void Log::write(const string& data)
 
 	currentLogFileSize += data.size();
 
-	if (currentLogFileSize >= log_constants::logFileSize || !checkDate())
+	if (currentLogFileSize >= log_constants::logFileSize || !this->checkDate())
 	{
 		this->nextLogFile();
 	}
