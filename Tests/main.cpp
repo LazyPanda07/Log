@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "gtest/gtest.h"
 
 #include "Log.h"
@@ -31,14 +33,24 @@ TEST(Log, Logging)
 
 TEST(Log, ChangingLogFile)
 {
-    std::string currentLogFile = Log::getCurrentLogFilePath().string();
+    std::filesystem::path currentLogFile = Log::getCurrentLogFilePath();
+    
+#ifdef NDEBUG
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
 
-    for (size_t i = 0; i < 1'000'000'000; i++)
+    for (size_t i = 0; i < 5'000'000; i++)
     {
         Log::info("Log some information with current index {} and line {}", "LogTest", i, __LINE__);
     }
 
-    ASSERT_NE(Log::getCurrentLogFilePath().string(), currentLogFile);
+#ifdef NDEBUG
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::cout << static_cast<double>((end - start).count()) / std::chrono::high_resolution_clock::period::den << " seconds" << std::endl;
+#endif
+
+    ASSERT_NE(Log::getCurrentLogFilePath(), currentLogFile);
 }
 
 int main(int argc, char** argv)

@@ -70,7 +70,7 @@ private:
 
 	std::string getFullCurrentDate() const;
 
-	void init(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
+	void init(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
 
 private:
 	Log();
@@ -109,8 +109,9 @@ public:
 	* @brief Additional configuration
 	* @param logDateFormat One of DMY, MDY, YMD
 	* @param pathToLogs Path to logs folder
+	* @param defaultLogFileSize Size of each log file in bytes
 	*/
-	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "");
+	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
 
 	/**
 	 * @brief Get current log file path

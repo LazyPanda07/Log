@@ -62,7 +62,7 @@ void Log::write(const string& data)
 
 	currentLogFileSize += data.size();
 
-	if (currentLogFileSize >= logFileSize || !checkDate())
+	if (currentLogFileSize >= log_constants::logFileSize || !checkDate())
 	{
 		this->nextLogFile();
 	}
@@ -80,7 +80,7 @@ void Log::nextLogFile()
 	for (const auto& i : filesystem::directory_iterator(basePath))
 	{
 		string checkDate = i.path().filename().string();
-		checkDate.resize(cPlusPlusDateSize);
+		checkDate.resize(log_constants::cPlusPlusDateSize);
 
 		if (curDate == checkDate)
 		{
@@ -107,7 +107,7 @@ void Log::nextLogFile()
 	string format = this->getFullCurrentDate();
 
 	currentLogFilePath /= format;
-	currentLogFilePath.replace_extension(fileExtension);
+	currentLogFilePath.replace_extension(log_constants::fileExtension);
 
 	logFile.open(currentLogFilePath);
 
@@ -135,7 +135,7 @@ bool Log::checkDate() const
 
 	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
-	logFileDate.resize(cPlusPlusDateSize);
+	logFileDate.resize(log_constants::cPlusPlusDateSize);
 
 	this->getDate(currentDate, &calendarTime);
 
@@ -144,32 +144,32 @@ bool Log::checkDate() const
 
 bool Log::checkFileSize(const filesystem::path& filePath) const
 {
-	return filesystem::file_size(filePath) < logFileSize;
+	return filesystem::file_size(filePath) < log_constants::logFileSize;
 }
 
 void Log::getDate(string& outDate, const tm* time) const
 {
-	outDate.resize(cDateSize);
+	outDate.resize(log_constants::cDateSize);
 
 	switch (logDateFormat)
 	{
 	case Log::dateFormat::DMY:
-		strftime(outDate.data(), cDateSize, "%d-%m-%Y", time);
+		strftime(outDate.data(), log_constants::cDateSize, "%d-%m-%Y", time);
 		break;
 
 	case Log::dateFormat::MDY:
-		strftime(outDate.data(), cDateSize, "%m-%d-%Y", time);
+		strftime(outDate.data(), log_constants::cDateSize, "%m-%d-%Y", time);
 		break;
 
 	case Log::dateFormat::YMD:
-		strftime(outDate.data(), cDateSize, "%Y-%m-%d", time);
+		strftime(outDate.data(), log_constants::cDateSize, "%Y-%m-%d", time);
 		break;
 
 	default:
 		break;
 	}
 
-	outDate.resize(cPlusPlusDateSize);
+	outDate.resize(log_constants::cPlusPlusDateSize);
 }
 
 tm Log::getGMTTime() const
@@ -218,13 +218,15 @@ string Log::getFullCurrentDate() const
 	return format;
 }
 
-void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs)
+void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
 	unique_lock<mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
 	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
+	
+	log_constants::logFileSize = defaultLogFileSize;
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
@@ -261,7 +263,7 @@ string Log::getLogLibraryVersion()
 	return version;
 }
 
-void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs)
+void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
 	Log::getInstance().init(logDateFormat, pathToLogs);
 }
