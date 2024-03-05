@@ -1,13 +1,9 @@
 #include "Log.h"
 
 #include <sstream>
-#include <ctime>
 #include <vector>
 #include <thread>
-
-#ifdef __LINUX__
-#include <time.h>
-#endif
+#include <format>
 
 #ifndef __LINUX__
 #pragma warning (push)
@@ -15,6 +11,9 @@
 #endif
 
 using namespace std;
+
+static constexpr uint16_t dateSize = 8;
+static constexpr uint16_t fullDateSize = 17;
 
 Log::dateFormat Log::dateFormatFromString(const string& source) const
 {
@@ -72,17 +71,14 @@ void Log::write(const string& data)
 
 void Log::nextLogFile()
 {
-	tm curTime = this->getGMTTime();
-	string curDate;
-
-	this->getDate(curDate, &curTime);
+	string currentDate = this->getCurrentDate();
 
 	for (const auto& i : filesystem::directory_iterator(basePath))
 	{
 		string checkDate = i.path().filename().string();
-		checkDate.resize(log_constants::cPlusPlusDateSize);
+		checkDate.resize(dateSize);
 
-		if (curDate == checkDate)
+		if (currentDate == checkDate)
 		{
 			for (const auto& j : filesystem::directory_iterator(i))
 			{
@@ -104,25 +100,17 @@ void Log::nextLogFile()
 
 	logFile.close();
 
-	string format = this->getFullCurrentDate();
-
-	currentLogFilePath /= format;
-	currentLogFilePath.replace_extension(log_constants::fileExtension);
-
-	logFile.open(currentLogFilePath);
+	logFile.open
+	(
+		(currentLogFilePath /= this->getFullCurrentDate()).replace_extension(log_constants::fileExtension)
+	);
 
 	currentLogFileSize = 0;
 }
 
 void Log::newLogFolder()
 {
-	filesystem::path current(basePath);
-	tm calendarTime = this->getGMTTime();
-	string curDate;
-
-	this->getDate(curDate, &calendarTime);
-
-	current /= curDate;
+	filesystem::path current(basePath / this->getCurrentDate());
 
 	filesystem::create_directories(current);
 
@@ -131,15 +119,11 @@ void Log::newLogFolder()
 
 bool Log::checkDate() const
 {
-	tm calendarTime = this->getGMTTime();
-
-	string currentDate;
 	string logFileDate = currentLogFilePath.filename().string();
-	logFileDate.resize(log_constants::cPlusPlusDateSize);
+	
+	logFileDate.resize(dateSize);
 
-	this->getDate(currentDate, &calendarTime);
-
-	return logFileDate == currentDate;
+	return logFileDate == this->getCurrentDate();
 }
 
 bool Log::checkFileSize(const filesystem::path& filePath) const
@@ -147,75 +131,63 @@ bool Log::checkFileSize(const filesystem::path& filePath) const
 	return filesystem::file_size(filePath) < log_constants::logFileSize;
 }
 
-void Log::getDate(string& outDate, const tm* time) const
+string Log::getCurrentDate() const
 {
-	outDate.resize(log_constants::cDateSize);
+	chrono::system_clock::time_point currentDate = chrono::system_clock::now();
+	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
+	string dateFormat;
 
 	switch (logDateFormat)
 	{
 	case Log::dateFormat::DMY:
-		strftime(outDate.data(), log_constants::cDateSize, "%d-%m-%Y", time);
+		dateFormat = "{0}.{1:%m}.{2}";
 		break;
 
 	case Log::dateFormat::MDY:
-		strftime(outDate.data(), log_constants::cDateSize, "%m-%d-%Y", time);
+		dateFormat = "{1:%m}.{0}.{2}";
 		break;
 
 	case Log::dateFormat::YMD:
-		strftime(outDate.data(), log_constants::cDateSize, "%Y-%m-%d", time);
+		dateFormat = "{2}.{1:%m}.{0}";
 		break;
 
 	default:
 		break;
 	}
 
-	outDate.resize(log_constants::cPlusPlusDateSize);
-}
-
-tm Log::getGMTTime() const
-{
-	tm calendarTime;
-	time_t epochTime;
-
-	time(&epochTime);
-
-#ifdef __LINUX__
-	gmtime_r(&epochTime, &calendarTime);
-#else
-	gmtime_s(&calendarTime, &epochTime);
-#endif
-
-	return calendarTime;
+	return vformat(dateFormat, make_format_args(ymd.day(), ymd.month(), ymd.year()));
 }
 
 string Log::getFullCurrentDate() const
 {
-	string format;
-	tm calendarTime = this->getGMTTime();
-
-	format.resize(20);
+	chrono::system_clock::time_point currentDate = chrono::system_clock::now();
+	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
+	chrono::hh_mm_ss<chrono::system_clock::duration> hms(currentDate.time_since_epoch());
+	string fullDateFormat;
+	
+	fullDateFormat.reserve(fullDateSize);
+	
+	fullDateFormat += "-{3}.{4}.{5}";
 
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		strftime(format.data(), format.size(), "%d-%m-%Y %H-%M-%S", &calendarTime);
+		fullDateFormat.insert(0, "{0}.{1:%m}.{2}");
 		break;
 
 	case dateFormat::MDY:
-		strftime(format.data(), format.size(), "%m-%d-%Y %H-%M-%S", &calendarTime);
+		fullDateFormat.insert(0, "{1:%m}.{0}.{2}");
 		break;
 
 	case dateFormat::YMD:
-		strftime(format.data(), format.size(), "%Y-%m-%d %H-%M-%S", &calendarTime);
+		fullDateFormat.insert(0, "{2}.{1:%m}.{0}");
 		break;
 
 	default:
 		break;
 	}
 
-	format.pop_back();
-
-	return format;
+	return vformat(fullDateFormat, make_format_args(ymd.day(), ymd.month(), ymd.year(), hms.hours().count() % 24, hms.minutes().count(), hms.seconds().count()));
 }
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)

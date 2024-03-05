@@ -12,7 +12,7 @@
 #define LOG_API
 #endif // LOG_DLL
 
-#include <iostream>
+#include <chrono>
 #include <fstream>
 #include <string>
 #include <filesystem>
@@ -64,9 +64,7 @@ private:
 
 	bool checkFileSize(const std::filesystem::path& filePath) const;
 
-	void getDate(std::string& outDate, const tm* time) const;
-
-	tm getGMTTime() const;
+	std::string getCurrentDate() const;
 
 	std::string getFullCurrentDate() const;
 
