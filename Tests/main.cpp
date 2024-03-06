@@ -6,23 +6,27 @@
 
 TEST(Log, Logging)
 {
-	Log::info("Information message on line {}", "LogInformation", __LINE__);
+	int firstLine = __LINE__;
+	int secondLine = __LINE__;
+	int thirdLine = __LINE__;
 
-	Log::warning("Warning message on line {}", "LogWarning", __LINE__);
+	Log::info("Information message on line {}", "LogInformation", firstLine);
 
-	Log::error("Error message on line {}", "LogError", __LINE__);
+	Log::warning("Warning message on line {}", "LogWarning", secondLine);
+
+	Log::error("Error message on line {}", "LogError", thirdLine);
 
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string tem = (std::ostringstream() << in.rdbuf()).str();
 
 	ASSERT_TRUE(tem.find("INFO") != std::string::npos);
-	ASSERT_TRUE(tem.find("Information message on line 9") != std::string::npos);
+	ASSERT_TRUE(tem.find("Information message on line ") + std::to_string(firstLine) != std::string::npos);
 
 	ASSERT_TRUE(tem.find("WARNING") != std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line 11") != std::string::npos);
+	ASSERT_TRUE(tem.find("Warning message on line ") + std::to_string(secondLine) != std::string::npos);
 
 	ASSERT_TRUE(tem.find("ERROR") != std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line 13") != std::string::npos);
+	ASSERT_TRUE(tem.find("Error message on line ") + std::to_string(thirdLine) != std::string::npos);
 }
 
 TEST(Log, ChangingLogFile)
@@ -53,23 +57,27 @@ TEST(Log, ChangingLogFile)
 
 TEST(Log, DebugLogging)
 {
-	LOG_DEBUG_INFO("Information message on line {}", "LogInformation", __LINE__);
+	int firstLine = __LINE__;
+	int secondLine = __LINE__;
+	int thirdLine = __LINE__;
 
-	LOG_DEBUG_WARNING("Warning message on line {}", "LogWarning", __LINE__);
+	LOG_DEBUG_INFO("Information message on line {}", "LogInformation", firstLine);
 
-	LOG_DEBUG_ERROR("Error message on line {}", "LogError", __LINE__);
+	LOG_DEBUG_WARNING("Warning message on line {}", "LogWarning", secondLine);
+
+	LOG_DEBUG_ERROR("Error message on line {}", "LogError", thirdLine);
 
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string tem = (std::ostringstream() << in.rdbuf()).str();
 
 #ifdef NDEBUG
-	ASSERT_TRUE(tem.find("Information message on line 56") == std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line 58") == std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line 60") == std::string::npos);
+	ASSERT_TRUE(tem.find("Information message on line ") + std::to_string(firstLine) == std::string::npos);
+	ASSERT_TRUE(tem.find("Warning message on line ") + std::to_string(secondLine) == std::string::npos);
+	ASSERT_TRUE(tem.find("Error message on line ") + std::to_string(thirdLine) == std::string::npos);
 #else
-	ASSERT_TRUE(tem.find("Information message on line 56") != std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line 58") != std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line 60") != std::string::npos);
+	ASSERT_TRUE(tem.find("Information message on line ") + std::to_string(firstLine) != std::string::npos);
+	ASSERT_TRUE(tem.find("Warning message on line ") + std::to_string(secondLine) != std::string::npos);
+	ASSERT_TRUE(tem.find("Error message on line ") + std::to_string(thirdLine) != std::string::npos);
 #endif
 }
 
