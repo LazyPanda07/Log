@@ -63,17 +63,13 @@ TEST(Log, DebugLogging)
 	std::string tem = (std::ostringstream() << in.rdbuf()).str();
 
 #ifdef NDEBUG
-	printf("Release\n");
-
-	ASSERT_TRUE(tem.find("Information message on line 54") == std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line 56") == std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line 58") == std::string::npos);
+	ASSERT_TRUE(tem.find("Information message on line 56") == std::string::npos);
+	ASSERT_TRUE(tem.find("Warning message on line 58") == std::string::npos);
+	ASSERT_TRUE(tem.find("Error message on line 60") == std::string::npos);
 #else
-	printf("Debug\n");
-
-	ASSERT_TRUE(tem.find("Information message on line 54") != std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line 56") != std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line 58") != std::string::npos);
+	ASSERT_TRUE(tem.find("Information message on line 56") != std::string::npos);
+	ASSERT_TRUE(tem.find("Warning message on line 58") != std::string::npos);
+	ASSERT_TRUE(tem.find("Error message on line 60") != std::string::npos);
 #endif
 }
 
