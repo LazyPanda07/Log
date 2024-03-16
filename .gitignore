@@ -39,6 +39,3 @@ bin/
 
 # Google Test
 gtest/
-
-# VS sln file
-*.sln

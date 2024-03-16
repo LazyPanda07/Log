@@ -15,7 +15,7 @@ using namespace std;
 static constexpr uint16_t dateSize = 10;
 static constexpr uint16_t fullDateSize = 17;
 
-Log::dateFormat Log::dateFormatFromString(const string& source) const
+Log::dateFormat Log::dateFormatFromString(const string& source)
 {
 	if (source == "DMY")
 	{
@@ -230,14 +230,19 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.0.0";
+	string version = "1.0.1";
 
 	return version;
 }
 
 void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
-	Log::getInstance().init(logDateFormat, pathToLogs);
+	Log::getInstance().init(logDateFormat, pathToLogs, defaultLogFileSize);
+}
+
+void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
+{
+	Log::getInstance().init(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize);
 }
 
 const filesystem::path& Log::getCurrentLogFilePath()

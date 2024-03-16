@@ -60,7 +60,7 @@ private:
 	size_t currentLogFileSize;
 
 private:
-	dateFormat dateFormatFromString(const std::string& source) const;
+	static dateFormat dateFormatFromString(const std::string& source);
 
 	bool validation(const std::string& format, size_t count) const;
 
@@ -122,6 +122,14 @@ public:
 	* @param defaultLogFileSize Size of each log file in bytes
 	*/
 	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
+
+	/**
+	* @brief Additional configuration
+	* @param logDateFormat One of DMY, MDY, YMD
+	* @param pathToLogs Path to logs folder
+	* @param defaultLogFileSize Size of each log file in bytes
+	*/
+	static void configure(const std::string& logDateFormat = "DMY", const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
 
 	/**
 	 * @brief Get current log file path

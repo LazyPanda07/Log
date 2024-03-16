@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Log<span id="projectnumber">&#160;v1.0.0</span>
+   <div id="projectname">Log<span id="projectnumber">&#160;v1.0.1</span>
    </div>
    <div id="projectbrief">Logging system</div>
   </td>
@@ -97,9 +97,12 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:af3ba9b4b22eec82cde4f58398484d145" id="r_af3ba9b4b22eec82cde4f58398484d145"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#af3ba9b4b22eec82cde4f58398484d145">getLogLibraryVersion</a> ()</td></tr>
 <tr class="memdesc:af3ba9b4b22eec82cde4f58398484d145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get <a class="el" href="class_log.html">Log</a> library version.  <br /></td></tr>
 <tr class="separator:af3ba9b4b22eec82cde4f58398484d145"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae244f17fb7de045beb89456199d683cf" id="r_ae244f17fb7de045beb89456199d683cf"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#ae244f17fb7de045beb89456199d683cf">configure</a> (dateFormat logDateFormat=dateFormat::DMY, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=log_constants::logFileSize)</td></tr>
-<tr class="memdesc:ae244f17fb7de045beb89456199d683cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional configuration.  <br /></td></tr>
-<tr class="separator:ae244f17fb7de045beb89456199d683cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d8edbcaade5c99ea8b18e8365168adc" id="r_a7d8edbcaade5c99ea8b18e8365168adc"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#a7d8edbcaade5c99ea8b18e8365168adc">configure</a> (dateFormat logDateFormat=dateFormat::DMY, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=log_constants::logFileSize)</td></tr>
+<tr class="memdesc:a7d8edbcaade5c99ea8b18e8365168adc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional configuration.  <br /></td></tr>
+<tr class="separator:a7d8edbcaade5c99ea8b18e8365168adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfdfb525d85e7d237f032e205bf06dd1" id="r_abfdfb525d85e7d237f032e205bf06dd1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#abfdfb525d85e7d237f032e205bf06dd1">configure</a> (const std::string &amp;logDateFormat=&quot;DMY&quot;, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=log_constants::logFileSize)</td></tr>
+<tr class="memdesc:abfdfb525d85e7d237f032e205bf06dd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional configuration.  <br /></td></tr>
+<tr class="separator:abfdfb525d85e7d237f032e205bf06dd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ca7988994ebad9a4e7cc01b236c90e3" id="r_a3ca7988994ebad9a4e7cc01b236c90e3"><td class="memItemLeft" align="right" valign="top">static const std::filesystem::path &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#a3ca7988994ebad9a4e7cc01b236c90e3">getCurrentLogFilePath</a> ()</td></tr>
 <tr class="memdesc:a3ca7988994ebad9a4e7cc01b236c90e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current log file path.  <br /></td></tr>
 <tr class="separator:a3ca7988994ebad9a4e7cc01b236c90e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,8 +124,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a4f2c1f1821af1164bf1f1af531c0341d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="ae244f17fb7de045beb89456199d683cf" name="ae244f17fb7de045beb89456199d683cf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae244f17fb7de045beb89456199d683cf">&#9670;&#160;</a></span>configure()</h2>
+<a id="abfdfb525d85e7d237f032e205bf06dd1" name="abfdfb525d85e7d237f032e205bf06dd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfdfb525d85e7d237f032e205bf06dd1">&#9670;&#160;</a></span>configure() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -131,7 +134,59 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void Log::configure </td>
+          <td class="memname">static void Log::configure </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>logDateFormat</em> = <code>&quot;DMY&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const std::filesystem::path &amp;&#160;</td>
+          <td class="paramname"><em>pathToLogs</em> = <code>&quot;&quot;</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uintmax_t&#160;</td>
+          <td class="paramname"><em>defaultLogFileSize</em> = <code>log_constants::logFileSize</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Additional configuration. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">logDateFormat</td><td>One of DMY, MDY, YMD </td></tr>
+    <tr><td class="paramname">pathToLogs</td><td>Path to logs folder </td></tr>
+    <tr><td class="paramname">defaultLogFileSize</td><td>Size of each log file in bytes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a7d8edbcaade5c99ea8b18e8365168adc" name="a7d8edbcaade5c99ea8b18e8365168adc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d8edbcaade5c99ea8b18e8365168adc">&#9670;&#160;</a></span>configure() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void Log::configure </td>
           <td>(</td>
           <td class="paramtype">dateFormat&#160;</td>
           <td class="paramname"><em>logDateFormat</em> = <code>dateFormat::DMY</code>, </td>
