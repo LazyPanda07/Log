@@ -8,14 +8,10 @@ if (UNIX)
 	add_definitions(-D__LINUX__)
 endif (UNIX)
 
-if (${BUILD_SHARED_LIBS})
-	add_definitions(-DLOG_DLL)
-endif ()
-
 project(Log)
 
 add_library(
-	${PROJECT_NAME}
+	${PROJECT_NAME} SHARED
 	src/Log.cpp
 )
 

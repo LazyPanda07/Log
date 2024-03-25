@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef LOG_DLL
 #ifdef __LINUX__
 #define LOG_API __attribute__((visibility("default")))
 #else
@@ -8,9 +7,6 @@
 
 #pragma warning(disable: 4251)
 #endif
-#else
-#define LOG_API
-#endif // LOG_DLL
 
 #include <chrono>
 #include <fstream>

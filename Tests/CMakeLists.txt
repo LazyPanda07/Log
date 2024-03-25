@@ -11,12 +11,6 @@ else ()
 	set(DLL ${DLL}/dll/Log.dll)
 endif (UNIX)
 
-if (EXISTS ${DLL})
-	add_definitions(-DLOG_DLL)
-
-	install(FILES ${DLL} DESTINATION ${CMAKE_BINARY_DIR}/bin)
-endif ()
-
 project(Tests)
 
 add_executable(
@@ -44,3 +38,5 @@ target_link_libraries(
 )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+install(FILES ${DLL} DESTINATION ${CMAKE_BINARY_DIR}/bin)
