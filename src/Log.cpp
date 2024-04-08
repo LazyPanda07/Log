@@ -136,6 +136,9 @@ string Log::getCurrentDate() const
 	chrono::system_clock::time_point currentDate = chrono::system_clock::now();
 	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
 	string dateFormat;
+	chrono::day day = ymd.day();
+	chrono::month month = ymd.month();
+	chrono::year year = ymd.year();
 
 	switch (logDateFormat)
 	{
@@ -155,7 +158,7 @@ string Log::getCurrentDate() const
 		break;
 	}
 
-	return vformat(dateFormat, make_format_args(ymd.day(), ymd.month(), ymd.year()));
+	return vformat(dateFormat, make_format_args(day, month, year));
 }
 
 string Log::getFullCurrentDate() const
@@ -164,6 +167,12 @@ string Log::getFullCurrentDate() const
 	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
 	chrono::hh_mm_ss<chrono::system_clock::duration> hms(currentDate.time_since_epoch());
 	string fullDateFormat;
+	int hours = hms.hours().count() % 24;
+	int minutes = hms.minutes().count();
+	chrono::seconds::rep seconds = hms.seconds().count();
+	chrono::day day = ymd.day();
+	chrono::month month = ymd.month();
+	chrono::year year = ymd.year();
 	
 	fullDateFormat.reserve(fullDateSize);
 	
@@ -187,7 +196,7 @@ string Log::getFullCurrentDate() const
 		break;
 	}
 
-	return vformat(fullDateFormat, make_format_args(ymd.day(), ymd.month(), ymd.year(), hms.hours().count() % 24, hms.minutes().count(), hms.seconds().count()));
+	return vformat(fullDateFormat, make_format_args(day, month, year, hours, minutes, seconds));
 }
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
@@ -230,7 +239,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.1.0";
+	string version = "1.1.1";
 
 	return version;
 }
