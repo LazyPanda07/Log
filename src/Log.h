@@ -199,7 +199,7 @@ void Log::fatalError(std::string&& format, std::string_view category, int exitCo
 template<typename... Args>
 void Log::log(level type, std::string_view format, std::string_view category, Args&&... args)
 {
-	std::string result = std::vformat(format, std::make_format_args<Args>(std::forward<Args>(args)...));
+	std::string result = std::vformat(format, std::make_format_args<Args>(std::forward<Args>(args)...)...);
 	std::string additionalInformation;
 
 	additionalInformation.reserve(log_constants::additionalInformationSize);
