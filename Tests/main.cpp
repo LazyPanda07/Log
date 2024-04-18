@@ -21,14 +21,18 @@ TEST(Log, Logging)
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string tem = (std::ostringstream() << in.rdbuf()).str();
 
-	ASSERT_TRUE(tem.find("INFO") != std::string::npos);
-	ASSERT_TRUE(tem.find("Information message on line "s + std::to_string(firstLine)) != std::string::npos);
+	ASSERT_NE(tem.find("INFO"), std::string::npos);
+	ASSERT_NE(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
 
-	ASSERT_TRUE(tem.find("WARNING") != std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line "s + std::to_string(secondLine)) != std::string::npos);
+	ASSERT_NE(tem.find("WARNING"), std::string::npos);
+	ASSERT_NE(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
 
-	ASSERT_TRUE(tem.find("ERROR") != std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line "s + std::to_string(thirdLine)) != std::string::npos);
+	ASSERT_NE(tem.find("ERROR"), std::string::npos);
+	ASSERT_NE(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
+
+	ASSERT_NO_THROW(Log::info("Log int", "LogInformation", 5));
+	ASSERT_NO_THROW(Log::warning("Log int", "LogWarning", 5));
+	ASSERT_NO_THROW(Log::error("Log int", "LogError", 5));
 }
 
 TEST(Log, ChangingLogFile)
@@ -73,13 +77,13 @@ TEST(Log, DebugLogging)
 	std::string tem = (std::ostringstream() << in.rdbuf()).str();
 
 #ifdef NDEBUG
-	ASSERT_TRUE(tem.find("Information message on line "s + std::to_string(firstLine)) == std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line "s + std::to_string(secondLine)) == std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line "s + std::to_string(thirdLine)) == std::string::npos);
+	ASSERT_EQ(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
+	ASSERT_EQ(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
+	ASSERT_EQ(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 #else
-	ASSERT_TRUE(tem.find("Information message on line "s + std::to_string(firstLine)) != std::string::npos);
-	ASSERT_TRUE(tem.find("Warning message on line "s + std::to_string(secondLine)) != std::string::npos);
-	ASSERT_TRUE(tem.find("Error message on line "s + std::to_string(thirdLine)) != std::string::npos);
+	ASSERT_NE(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
+	ASSERT_NE(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
+	ASSERT_NE(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 #endif
 }
 

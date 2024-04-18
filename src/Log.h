@@ -136,7 +136,7 @@ public:
 	 * @param ...args Insertions
 	 */
 	template<typename... Args>
-	static void info(std::string&& format, std::string_view category, Args&&... args);
+	static void info(std::string_view format, std::string_view category, Args&&... args);
 
 	/**
 	 * @brief Log some warning message
@@ -146,7 +146,7 @@ public:
 	 * @param ...args Insertions
 	 */
 	template<typename... Args>
-	static void warning(std::string&& format, std::string_view category, Args&&... args);
+	static void warning(std::string_view format, std::string_view category, Args&&... args);
 
 	/**
 	 * @brief Log some error
@@ -156,7 +156,7 @@ public:
 	 * @param ...args Insertions
 	 */
 	template<typename... Args>
-	static void error(std::string&& format, std::string_view category, Args&&... args);
+	static void error(std::string_view format, std::string_view category, Args&&... args);
 
 	/**
 	 * @brief Log and exit
@@ -167,31 +167,31 @@ public:
 	 * @param ...args 
 	 */
 	template<typename... Args>
-	static void fatalError(std::string&& format, std::string_view category, int exitCode, Args&&... args);
+	static void fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args);
 };
 
 template<typename... Args>
-void Log::info(std::string&& format, std::string_view category, Args&&... args)
+void Log::info(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::info, std::move(format), category, std::forward<Args>(args)...);
+	Log::getInstance().log(level::info, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-void Log::warning(std::string&& format, std::string_view category, Args&&... args)
+void Log::warning(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::warning, std::move(format), category, std::forward<Args>(args)...);
+	Log::getInstance().log(level::warning, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-void Log::error(std::string&& format, std::string_view category, Args&&... args)
+void Log::error(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::error, std::move(format), category, std::forward<Args>(args)...);
+	Log::getInstance().log(level::error, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-void Log::fatalError(std::string&& format, std::string_view category, int exitCode, Args&&... args)
+void Log::fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args)
 {
-	Log::getInstance().log(level::fatalError, std::move(format), category, std::forward<Args>(args)...);
+	Log::getInstance().log(level::fatalError, format, category, std::forward<Args>(args)...);
 
 	exit(exitCode);
 }
@@ -199,7 +199,7 @@ void Log::fatalError(std::string&& format, std::string_view category, int exitCo
 template<typename... Args>
 void Log::log(level type, std::string_view format, std::string_view category, Args&&... args)
 {
-	std::string result = std::vformat(format, std::make_format_args<Args>(std::forward<Args>(args)...)...);
+	std::string result = std::vformat(format, std::make_format_args(std::forward<Args>(args)...));
 	std::string additionalInformation;
 
 	additionalInformation.reserve(log_constants::additionalInformationSize);
