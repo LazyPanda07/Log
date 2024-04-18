@@ -13,6 +13,7 @@
 #include <string>
 #include <filesystem>
 #include <mutex>
+#include <format>
 
 #include "CompileTimeCheck.h"
 #include "LogConstants.h"
@@ -58,8 +59,6 @@ private:
 private:
 	static dateFormat dateFormatFromString(const std::string& source);
 
-	bool validation(const std::string& format, size_t count) const;
-
 	std::string getCurrentThreadId() const;
 
 	void write(const std::string& data);
@@ -95,14 +94,8 @@ private:
 	static Log& getInstance();
 
 private:
-	template<typename T, typename... Args>
-	void stringFormat(std::string& format, T&& value, Args&&... args);
-
 	template<typename... Args>
-	void stringFormat(std::string& format, Args&&... args);
-
-	template<typename... Args>
-	void log(level type, std::string&& format, std::string_view category, Args&&... args);
+	void log(level type, std::string_view format, std::string_view category, Args&&... args);
 
 public:
 	/**
@@ -203,50 +196,12 @@ void Log::fatalError(std::string&& format, std::string_view category, int exitCo
 	exit(exitCode);
 }
 
-template<typename T, typename... Args>
-void Log::stringFormat(std::string& format, T&& value, Args&&... args)
-{
-	size_t first = format.find('{');
-	size_t last = format.find('}') + 1;
-
-	if constexpr (std::is_fundamental_v<std::remove_reference_t<decltype(value)>>)
-	{
-		format.replace(format.begin() + first, format.begin() + last, std::to_string(value).data());
-	}
-	else if constexpr (is_iterable_v<decltype(value)>)
-	{
-		format.replace(format.begin() + first, format.begin() + last, std::begin(value), std::end(value));
-	}
-	else if constexpr (std::is_constructible_v<std::string_view, decltype(value)>)
-	{
-		std::string_view tem(value);
-
-		format.replace(format.begin() + first, format.begin() + last, tem.begin(), tem.end());
-	}
-
-	stringFormat(format, std::forward<Args>(args)...);
-}
-
 template<typename... Args>
-void Log::stringFormat(std::string& format, Args&&... args)
+void Log::log(level type, std::string_view format, std::string_view category, Args&&... args)
 {
-	if constexpr (sizeof...(args))
-	{
-		stringFormat(format, std::forward<Args>(args)...);
-	}
-}
-
-template<typename... Args>
-void Log::log(level type, std::string&& format, std::string_view category, Args&&... args)
-{
-	if (!this->validation(format, sizeof...(args)))
-	{
-		throw std::runtime_error("Not enough arguments for format string");
-	}
-
-	this->stringFormat(format, std::forward<Args>(args)...);
-
+	std::string result = std::format(format, std::forward<Args>(args)...);
 	std::string additionalInformation;
+
 	additionalInformation.reserve(log_constants::additionalInformationSize);
 
 	additionalInformation
@@ -285,7 +240,7 @@ void Log::log(level type, std::string&& format, std::string_view category, Args&
 
 	additionalInformation += ": ";
 
-	format.insert(format.begin(), additionalInformation.begin(), additionalInformation.end());
+	result.insert(result.begin(), additionalInformation.begin(), additionalInformation.end());
 
-	this->write(format);
+	this->write(result);
 }

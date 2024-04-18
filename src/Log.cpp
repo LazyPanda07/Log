@@ -33,23 +33,6 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 	throw invalid_argument("Can't convert source to dateFormat");
 }
 
-bool Log::validation(const string& format, size_t count) const
-{
-	vector<size_t> values;
-	size_t next = format.find("{}");
-
-	values.reserve(count);
-
-	while (next != string::npos)
-	{
-		values.push_back(next);
-
-		next = format.find("{}", next + 1);
-	}
-
-	return values.size() == count;
-}
-
 string Log::getCurrentThreadId() const
 {
 	return (ostringstream() << "thread id: " << this_thread::get_id()).str();
@@ -239,7 +222,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.1.1";
+	string version = "1.2.0";
 
 	return version;
 }
