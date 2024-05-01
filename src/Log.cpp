@@ -222,7 +222,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.2.0";
+	string version = "1.2.1";
 
 	return version;
 }
