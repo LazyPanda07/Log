@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['info_0',['info',['../class_log.html#ac04dda809a9b182a1d474d57b9905704',1,'Log']]],
-  ['is_5fiterable_1',['is_iterable',['../structis__iterable.html',1,'']]]
+  ['getcurrentlogfilepath_0',['getCurrentLogFilePath',['../class_log.html#a3ca7988994ebad9a4e7cc01b236c90e3',1,'Log']]],
+  ['getloglibraryversion_1',['getLogLibraryVersion',['../class_log.html#af3ba9b4b22eec82cde4f58398484d145',1,'Log']]]
 ];

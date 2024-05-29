@@ -124,7 +124,6 @@
     <ClCompile Include="src\Log.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\CompileTimeCheck.h" />
     <ClInclude Include="src\LogConstants.h" />
     <ClInclude Include="src\Log.h" />
   </ItemGroup>

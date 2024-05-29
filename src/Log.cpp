@@ -38,7 +38,7 @@ string Log::getCurrentThreadId() const
 	return (ostringstream() << "thread id: " << this_thread::get_id()).str();
 }
 
-void Log::write(const string& data)
+void Log::write(const string& data, level type)
 {
 	unique_lock<mutex> lock(writeMutex);
 
@@ -50,6 +50,29 @@ void Log::write(const string& data)
 	}
 
 	logFile << data << endl;
+
+	switch (type)
+	{
+	case Log::level::info:
+	case Log::level::warning:
+		if (outputStream)
+		{
+			(*outputStream) << data << endl;
+		}
+
+		break;
+
+	case Log::level::error:
+	case Log::level::fatalError:
+		if (errorStream)
+		{
+			(*errorStream) << data << endl;
+		}
+		else if (outputStream)
+		{
+			(*outputStream) << data << endl;
+		}
+	}
 }
 
 void Log::nextLogFile()
@@ -208,7 +231,9 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	}
 }
 
-Log::Log()
+Log::Log() :
+	outputStream(nullptr),
+	errorStream(nullptr)
 {
 	this->init();
 }
@@ -222,7 +247,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.2.1";
+	string version = "1.3.0";
 
 	return version;
 }
@@ -235,6 +260,16 @@ void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs
 void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
 	Log::getInstance().init(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize);
+}
+
+void Log::duplicateLog(ostream& outputStream)
+{
+	Log::getInstance().outputStream = &outputStream;
+}
+
+void Log::duplicateErrorLog(ostream& errorStream)
+{
+	Log::getInstance().errorStream = &errorStream;
 }
 
 const filesystem::path& Log::getCurrentLogFilePath()

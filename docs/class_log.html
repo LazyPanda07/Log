@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Log<span id="projectnumber">&#160;v1.2.0</span>
+   <div id="projectname">Log<span id="projectnumber">&#160;v1.3.0</span>
    </div>
    <div id="projectbrief">Logging system</div>
   </td>
@@ -103,6 +103,12 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:abfdfb525d85e7d237f032e205bf06dd1" id="r_abfdfb525d85e7d237f032e205bf06dd1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#abfdfb525d85e7d237f032e205bf06dd1">configure</a> (const std::string &amp;logDateFormat=&quot;DMY&quot;, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=log_constants::logFileSize)</td></tr>
 <tr class="memdesc:abfdfb525d85e7d237f032e205bf06dd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional configuration.  <br /></td></tr>
 <tr class="separator:abfdfb525d85e7d237f032e205bf06dd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91ba15aceb96500707021d085e25821c" id="r_a91ba15aceb96500707021d085e25821c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#a91ba15aceb96500707021d085e25821c">duplicateLog</a> (std::ostream &amp;outputStream)</td></tr>
+<tr class="memdesc:a91ba15aceb96500707021d085e25821c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Also output log information into stream.  <br /></td></tr>
+<tr class="separator:a91ba15aceb96500707021d085e25821c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39a94a0d9c8179f6f644ecb5b9315e8a" id="r_a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#a39a94a0d9c8179f6f644ecb5b9315e8a">duplicateErrorLog</a> (std::ostream &amp;errorStream)</td></tr>
+<tr class="memdesc:a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Also output log error information into stream.  <br /></td></tr>
+<tr class="separator:a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ca7988994ebad9a4e7cc01b236c90e3" id="r_a3ca7988994ebad9a4e7cc01b236c90e3"><td class="memItemLeft" align="right" valign="top">static const std::filesystem::path &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_log.html#a3ca7988994ebad9a4e7cc01b236c90e3">getCurrentLogFilePath</a> ()</td></tr>
 <tr class="memdesc:a3ca7988994ebad9a4e7cc01b236c90e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current log file path.  <br /></td></tr>
 <tr class="separator:a3ca7988994ebad9a4e7cc01b236c90e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,6 +228,74 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">logDateFormat</td><td>One of DMY, MDY, YMD </td></tr>
     <tr><td class="paramname">pathToLogs</td><td>Path to logs folder </td></tr>
     <tr><td class="paramname">defaultLogFileSize</td><td>Size of each log file in bytes </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a39a94a0d9c8179f6f644ecb5b9315e8a" name="a39a94a0d9c8179f6f644ecb5b9315e8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39a94a0d9c8179f6f644ecb5b9315e8a">&#9670;&#160;</a></span>duplicateErrorLog()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Log::duplicateErrorLog </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>errorStream</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Also output log error information into stream. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">errorStream</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="a91ba15aceb96500707021d085e25821c" name="a91ba15aceb96500707021d085e25821c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91ba15aceb96500707021d085e25821c">&#9670;&#160;</a></span>duplicateLog()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Log::duplicateLog </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>outputStream</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Also output log information into stream. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">outputStream</td><td></td></tr>
   </table>
   </dd>
 </dl>

@@ -8,6 +8,7 @@
 #pragma warning(disable: 4251)
 #endif
 
+#include <iostream>
 #include <chrono>
 #include <fstream>
 #include <string>
@@ -15,7 +16,6 @@
 #include <mutex>
 #include <format>
 
-#include "CompileTimeCheck.h"
 #include "LogConstants.h"
 
 #ifdef NDEBUG
@@ -55,13 +55,15 @@ private:
 	std::ofstream logFile;
 	dateFormat logDateFormat;
 	size_t currentLogFileSize;
+	std::ostream* outputStream;
+	std::ostream* errorStream;
 
 private:
 	static dateFormat dateFormatFromString(const std::string& source);
 
 	std::string getCurrentThreadId() const;
 
-	void write(const std::string& data);
+	void write(const std::string& data, level type);
 
 	void nextLogFile();
 
@@ -119,6 +121,18 @@ public:
 	* @param defaultLogFileSize Size of each log file in bytes
 	*/
 	static void configure(const std::string& logDateFormat = "DMY", const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
+
+	/**
+	 * @brief Also output log information into stream
+	 * @param outputStream 
+	 */
+	static void duplicateLog(std::ostream& outputStream);
+
+	/**
+	 * @brief Also output log error information into stream
+	 * @param errorStream
+	 */
+	static void duplicateErrorLog(std::ostream& errorStream);
 
 	/**
 	 * @brief Get current log file path
@@ -199,7 +213,7 @@ void Log::fatalError(std::string_view format, std::string_view category, int exi
 template<typename... Args>
 void Log::log(level type, std::string_view format, std::string_view category, Args&&... args)
 {
-	std::string result = std::vformat(format, std::make_format_args(std::forward<Args>(args)...));
+	std::string result = std::vformat(format, std::make_format_args(args...));
 	std::string additionalInformation;
 
 	additionalInformation.reserve(log_constants::additionalInformationSize);
@@ -235,12 +249,12 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 		break;
 
 	default:
-		return;
+		throw std::runtime_error("Wrong level type");
 	}
 
 	additionalInformation += ": ";
 
 	result.insert(result.begin(), additionalInformation.begin(), additionalInformation.end());
 
-	this->write(result);
+	this->write(result, type);
 }

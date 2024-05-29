@@ -18,9 +18,6 @@
     <ClInclude Include="src\Log.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\CompileTimeCheck.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="src\LogConstants.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
