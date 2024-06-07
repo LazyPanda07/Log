@@ -11,7 +11,8 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        # configuration: [Debug, Release]
+        configuration: [Debug, RelWithDebInfo]
 
     steps:
     - uses: actions/checkout@v4
@@ -63,7 +64,8 @@ jobs:
     needs: windows-build
     strategy:
       matrix:
-        configuration: [Debug, Release]
+        # configuration: [Debug, Release]
+        configuration: [Debug, RelWithDebInfo]
 
     steps:
     - uses: actions/checkout@v4
