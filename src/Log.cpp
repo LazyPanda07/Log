@@ -251,8 +251,6 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
-		cout << __LINE__ << endl;
-
 		instance = unique_ptr<Log>(new Log());
 	}
 
@@ -272,8 +270,6 @@ void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs
 	{
 		return;
 	}
-
-	cout << __LINE__ << endl;
 
 	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize));
 }
