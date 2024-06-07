@@ -209,6 +209,8 @@ string Log::getFullCurrentDate() const
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
+	cout << __LINE__ << endl;
+
 	unique_lock<mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
@@ -217,20 +219,34 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	
 	log_constants::logFileSize = defaultLogFileSize;
 
+	cout << __LINE__ << endl;
+
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
+		cout << __LINE__ << endl;
+
 		this->nextLogFile();
+
+		cout << __LINE__ << endl;
 	}
 	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
 	{
+		cout << __LINE__ << endl;
+
 		throw runtime_error(currentLogFilePath.string() + " must be directory");
 	}
 	else if (!filesystem::exists(currentLogFilePath))
 	{
+		cout << __LINE__ << endl;
+
 		filesystem::create_directories(currentLogFilePath);
 
 		this->nextLogFile();
+
+		cout << __LINE__ << endl;
 	}
+
+	cout << __LINE__ << endl;
 }
 
 Log::Log() :
@@ -244,6 +260,8 @@ Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t
 	outputStream(nullptr),
 	errorStream(nullptr)
 {
+	cout << __LINE__ << endl;
+
 	this->init(logDateFormat, pathToLogs, defaultLogFileSize);
 }
 
