@@ -42,7 +42,6 @@ string Log::getCurrentThreadId() const
 
 void Log::write(const string& data, level type)
 {
-	static mutex writeMutex;
 	unique_lock<mutex> lock(writeMutex);
 
 	currentLogFileSize += data.size();
@@ -210,6 +209,8 @@ string Log::getFullCurrentDate() const
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
+	unique_lock<mutex> lock(writeMutex);
+
 	this->logDateFormat = logDateFormat;
 	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
@@ -250,6 +251,8 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
+		cout << __LINE__ << endl;
+
 		instance = unique_ptr<Log>(new Log());
 	}
 
