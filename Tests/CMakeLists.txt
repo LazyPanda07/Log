@@ -13,6 +13,13 @@ endif (UNIX)
 
 project(Tests)
 
+find_package(GTest)
+
+if(NOT ${GTest_FOUND})
+	set(GTEST_BOTH_LIBRARIES gtest gtest_main)
+	set(GTEST_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/gtest/include/)
+endif()
+
 add_executable(
 	${PROJECT_NAME}
 	main.cpp
@@ -21,7 +28,7 @@ add_executable(
 target_include_directories(
 	${PROJECT_NAME} PUBLIC
 	${CMAKE_SOURCE_DIR}/../src
-	gtest/include
+	${GTEST_INCLUDE_DIRS}
 )
 
 target_link_directories(
@@ -33,8 +40,7 @@ target_link_directories(
 target_link_libraries(
 	${PROJECT_NAME} PUBLIC
 	Log
-	gtest
-	gtest_main
+	${GTEST_BOTH_LIBRARIES}
 )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)

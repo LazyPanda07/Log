@@ -6,6 +6,11 @@
 
 using namespace std::string_literals;
 
+TEST(Log, Configuration)
+{
+	Log::configure(Log::dateFormat::DMY);
+}
+
 TEST(Log, Logging)
 {
 	int firstLine = __LINE__;

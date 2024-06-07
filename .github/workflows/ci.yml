@@ -34,7 +34,9 @@ jobs:
 
 
   linux-build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: lazypanda07/ubuntu_cxx20:24.04
     strategy:
       matrix:
         configuration: [Debug, Release]
@@ -93,12 +95,13 @@ jobs:
       working-directory: Tests
       run: |
           cd build/bin
-          dir
           .\Tests.exe
 
 
   linux-tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: lazypanda07/ubuntu_cxx20:24.04
     needs: linux-build
     strategy:
       matrix:
@@ -112,12 +115,7 @@ jobs:
       with:
         path: Log
         name: ${{ matrix.configuration }}_Linux
-
-    - name: Get Google Test
-      uses: LazyPanda07/get-gtest@v1
-      with: 
-        install-path: Tests/gtest
-
+        
     - name: Build tests
       working-directory: Tests
       run: |
@@ -134,7 +132,9 @@ jobs:
 
 
   memory-leak-tests:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: lazypanda07/ubuntu_cxx20:24.04
     needs: linux-build
     strategy:
       matrix:
@@ -148,12 +148,7 @@ jobs:
       with:
         path: Log
         name: ${{ matrix.configuration }}_Linux
-
-    - name: Get Google Test
-      uses: LazyPanda07/get-gtest@v1
-      with: 
-        install-path: Tests/gtest
-
+        
     - name: Build tests
       working-directory: Tests
       run: |
@@ -171,7 +166,7 @@ jobs:
 
   
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: [windows-tests, linux-tests, memory-leak-tests]
 
     steps:
