@@ -211,7 +211,7 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 {
 	cout << __LINE__ << endl;
 
-	unique_lock<mutex> lock(writeMutex);
+	// unique_lock<mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
 	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
