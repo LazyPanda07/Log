@@ -51,7 +51,6 @@ public:
 private:
 	std::filesystem::path currentLogFilePath;
 	std::filesystem::path basePath;
-	std::mutex writeMutex;
 	std::ofstream logFile;
 	dateFormat logDateFormat;
 	size_t currentLogFileSize;
