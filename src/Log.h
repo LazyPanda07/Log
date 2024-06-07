@@ -82,6 +82,8 @@ private:
 private:
 	Log();
 
+	Log(dateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize);
+
 	Log(const Log&) = delete;
 
 	Log(Log&&) noexcept = delete;

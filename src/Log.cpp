@@ -15,6 +15,8 @@ using namespace std;
 static constexpr uint16_t dateSize = 10;
 static constexpr uint16_t fullDateSize = 17;
 
+static unique_ptr<Log> instance;
+
 Log::dateFormat Log::dateFormatFromString(const string& source)
 {
 	if (source == "DMY")
@@ -238,28 +240,48 @@ Log::Log() :
 	this->init();
 }
 
+Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize) :
+	outputStream(nullptr),
+	errorStream(nullptr)
+{
+	this->init(logDateFormat, pathToLogs, defaultLogFileSize);
+}
+
 Log& Log::getInstance()
 {
-	static Log instance;
+	if (!instance)
+	{
+		instance = make_unique<Log>();
+	}
 
-	return instance;
+	return *instance;
 }
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.3.0";
+	string version = "1.3.1";
 
 	return version;
 }
 
 void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
-	Log::getInstance().init(logDateFormat, pathToLogs, defaultLogFileSize);
+	if (instance)
+	{
+		return;
+	}
+
+	instance = make_unique<Log>(logDateFormat, pathToLogs, defaultLogFileSize);
 }
 
 void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
 {
-	Log::getInstance().init(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize);
+	if (instance)
+	{
+		return;
+	}
+
+	instance = make_unique<Log>(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize);
 }
 
 void Log::duplicateLog(ostream& outputStream)
