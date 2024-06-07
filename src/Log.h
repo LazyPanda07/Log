@@ -94,6 +94,8 @@ private:
 
 	~Log() = default;
 
+	friend struct std::default_delete<Log>;
+
 private:
 	static Log& getInstance();
 

@@ -251,7 +251,7 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
-		instance = make_unique<Log>();
+		instance = unique_ptr<Log>(new Log());
 	}
 
 	return *instance;
@@ -271,7 +271,7 @@ void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs
 		return;
 	}
 
-	instance = make_unique<Log>(logDateFormat, pathToLogs, defaultLogFileSize);
+	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize));
 }
 
 void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
@@ -281,7 +281,7 @@ void Log::configure(const string& logDateFormat, const std::filesystem::path& pa
 		return;
 	}
 
-	instance = make_unique<Log>(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize);
+	instance = unique_ptr<Log>(new Log(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize));
 }
 
 void Log::duplicateLog(ostream& outputStream)
