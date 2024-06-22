@@ -31,7 +31,7 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 	{
 		return dateFormat::YMD;
 	}
-	
+
 	throw invalid_argument("Can't convert source to dateFormat");
 }
 
@@ -128,7 +128,7 @@ void Log::newLogFolder()
 bool Log::checkDate() const
 {
 	string logFileDate = currentLogFilePath.filename().string();
-	
+
 	logFileDate.resize(dateSize);
 
 	return logFileDate == this->getCurrentDate();
@@ -141,7 +141,7 @@ bool Log::checkFileSize(const filesystem::path& filePath) const
 
 string Log::getCurrentDate() const
 {
-	chrono::system_clock::time_point now = chrono::floor<chrono::days>(chrono::system_clock::now());
+	auto now = chrono::floor<chrono::days>(chrono::system_clock::now());
 
 	switch (logDateFormat)
 	{
@@ -155,7 +155,7 @@ string Log::getCurrentDate() const
 		return format("{0:%Y.%m.%d}", now);
 
 	default:
-		throw runtime_error("Wrong dateFormat");
+		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
 	return {};
@@ -163,32 +163,24 @@ string Log::getCurrentDate() const
 
 string Log::getFullCurrentDate() const
 {
-	chrono::system_clock::time_point now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
-	string fullDateFormat;
-
-	fullDateFormat.reserve(fullDateSize);
+	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
 
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		fullDateFormat += "{0.%d.%m.%Y";
-		break;
+		return format("{0:%d.%m.%Y-%H.%M.%S}", now);
 
 	case dateFormat::MDY:
-		fullDateFormat += "{0:%m.%d.%Y";
-		break;
+		return format("{0:%m.%d.%Y-%H.%M.%S}", now);
 
 	case dateFormat::YMD:
-		fullDateFormat += "{0.%Y.%m.%d";
-		break;
+		return format("{0:%Y.%m.%d-%H.%M.%S}", now);
 
 	default:
-		break;
+		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
-	fullDateFormat += "-%H.%M.%S}";
-
-	return vformat(fullDateFormat, make_format_args(now));
+	return {};
 }
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
@@ -198,7 +190,7 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	this->logDateFormat = logDateFormat;
 	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
-	
+
 	log_constants::logFileSize = defaultLogFileSize;
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
