@@ -141,70 +141,54 @@ bool Log::checkFileSize(const filesystem::path& filePath) const
 
 string Log::getCurrentDate() const
 {
-	chrono::system_clock::time_point currentDate = chrono::system_clock::now();
-	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
-	string dateFormat;
-	chrono::day day = ymd.day();
-	chrono::month month = ymd.month();
-	chrono::year year = ymd.year();
+	chrono::system_clock::time_point now = chrono::floor<chrono::days>(chrono::system_clock::now());
 
 	switch (logDateFormat)
 	{
 	case Log::dateFormat::DMY:
-		dateFormat = "{0}.{1:%m}.{2}";
-		break;
+		return format("{0:%d.%m.%Y}", now);
 
 	case Log::dateFormat::MDY:
-		dateFormat = "{1:%m}.{0}.{2}";
-		break;
+		return format("{0:%m.%d.%Y}", now);
 
 	case Log::dateFormat::YMD:
-		dateFormat = "{2}.{1:%m}.{0}";
-		break;
+		return format("{0:%Y.%m.%d}", now);
 
 	default:
-		break;
+		throw runtime_error("Wrong dateFormat");
 	}
 
-	return vformat(dateFormat, make_format_args(day, month, year));
+	return {};
 }
 
 string Log::getFullCurrentDate() const
 {
-	chrono::system_clock::time_point currentDate = chrono::system_clock::now();
-	chrono::year_month_day ymd(chrono::floor<chrono::days>(currentDate));
-	chrono::hh_mm_ss<chrono::system_clock::duration> hms(currentDate.time_since_epoch());
+	chrono::system_clock::time_point now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
 	string fullDateFormat;
-	int hours = hms.hours().count() % 24;
-	int minutes = hms.minutes().count();
-	chrono::seconds::rep seconds = hms.seconds().count();
-	chrono::day day = ymd.day();
-	chrono::month month = ymd.month();
-	chrono::year year = ymd.year();
-	
+
 	fullDateFormat.reserve(fullDateSize);
 
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		fullDateFormat += "{0}.{1:%m}.{2}";
+		fullDateFormat += "{0.%d.%m.%Y";
 		break;
 
 	case dateFormat::MDY:
-		fullDateFormat += "{1:%m}.{0}.{2}";
+		fullDateFormat += "{0:%m.%d.%Y";
 		break;
 
 	case dateFormat::YMD:
-		fullDateFormat += "{2}.{1:%m}.{0}";
+		fullDateFormat += "{0.%Y.%m.%d";
 		break;
 
 	default:
 		break;
 	}
 
-	fullDateFormat += "-{3:%H}.{4:%M}.{5:%S}";
+	fullDateFormat += "-%H.%M.%S}";
 
-	return vformat(fullDateFormat, make_format_args(day, month, year, hours, minutes, seconds));
+	return vformat(fullDateFormat, make_format_args(now));
 }
 
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
