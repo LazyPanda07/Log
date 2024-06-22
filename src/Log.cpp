@@ -183,26 +183,26 @@ string Log::getFullCurrentDate() const
 	chrono::year year = ymd.year();
 	
 	fullDateFormat.reserve(fullDateSize);
-	
-	fullDateFormat += "-{3}.{4}.{5}";
 
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		fullDateFormat.insert(0, "{0}.{1:%m}.{2}");
+		fullDateFormat += "{0}.{1:%m}.{2}";
 		break;
 
 	case dateFormat::MDY:
-		fullDateFormat.insert(0, "{1:%m}.{0}.{2}");
+		fullDateFormat += "{1:%m}.{0}.{2}";
 		break;
 
 	case dateFormat::YMD:
-		fullDateFormat.insert(0, "{2}.{1:%m}.{0}");
+		fullDateFormat += "{2}.{1:%m}.{0}";
 		break;
 
 	default:
 		break;
 	}
+
+	fullDateFormat += "-{3:%H}.{4:%M}.{5:%S}";
 
 	return vformat(fullDateFormat, make_format_args(day, month, year, hours, minutes, seconds));
 }
@@ -259,7 +259,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.3.1";
+	string version = "1.3.2";
 
 	return version;
 }
