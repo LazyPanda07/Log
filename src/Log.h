@@ -17,6 +17,8 @@
 #include <filesystem>
 #include <mutex>
 #include <format>
+#include <vector>
+#include <functional>
 
 #include "LogConstants.h"
 
@@ -50,20 +52,29 @@ public:
 		fatalError
 	};
 
+	enum AdditionalInformation : uint64_t
+	{
+		utcDate = 1,
+		localDate = utcDate << 1,
+		processName = localDate << 1,
+		processId = processName << 1,
+		threadId = processId << 1
+	};
+
 private:
+	std::ofstream logFile;
+	std::mutex writeMutex;
 	std::filesystem::path currentLogFilePath;
 	std::filesystem::path basePath;
-	std::mutex writeMutex;
-	std::ofstream logFile;
-	dateFormat logDateFormat;
+	std::vector<std::function<std::string()>> modifiers;
+	uint64_t flags;
 	size_t currentLogFileSize;
 	std::ostream* outputStream;
 	std::ostream* errorStream;
+	dateFormat logDateFormat;
 
 private:
 	static dateFormat dateFormatFromString(const std::string& source);
-
-	std::string getCurrentThreadId() const;
 
 	void write(const std::string& data, level type);
 
@@ -77,14 +88,30 @@ private:
 
 	std::string getCurrentDate() const;
 
-	std::string getFullCurrentDate() const;
+	std::string getFullCurrentDateUTC() const;
 
-	void init(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
+	std::string getFullCurrentDateLocal() const;
+
+	std::string getProcessName() const;
+
+	std::string getProcessId() const;
+
+	std::string getThreadId() const;
+
+	void initModifiers(uint64_t flags);
+
+	void init
+	(
+		dateFormat logDateFormat = dateFormat::DMY,
+		const std::filesystem::path& pathToLogs = "",
+		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+	);
 
 private:
 	Log();
 
-	Log(dateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize);
+	Log(dateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags);
 
 	Log(const Log&) = delete;
 
@@ -118,7 +145,13 @@ public:
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
 	*/
-	static void configure(dateFormat logDateFormat = dateFormat::DMY, const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
+	static void configure
+	(
+		dateFormat logDateFormat = dateFormat::DMY,
+		const std::filesystem::path& pathToLogs = "",
+		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+	);
 
 	/**
 	* @brief Additional configuration
@@ -126,7 +159,13 @@ public:
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
 	*/
-	static void configure(const std::string& logDateFormat = "DMY", const std::filesystem::path& pathToLogs = "", uintmax_t defaultLogFileSize = log_constants::logFileSize);
+	static void configure
+	(
+		const std::string& logDateFormat = "DMY",
+		const std::filesystem::path& pathToLogs = "",
+		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+	);
 
 	/**
 	 * @brief Also output log information into stream
@@ -224,13 +263,12 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 
 	additionalInformation.reserve(log_constants::additionalInformationSize);
 
-	additionalInformation
-		.append("[")
-		.append(getFullCurrentDate())
-		.append(" UTC][")
-		.append(getCurrentThreadId())
-		.append("] ")
-		.append(category).append(": ");
+	for (const std::function<std::string()>& modifier : modifiers)
+	{
+		additionalInformation += modifier();
+	}
+
+	additionalInformation.append(category).append(": ");
 
 	switch (type)
 	{

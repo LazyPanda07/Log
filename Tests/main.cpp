@@ -24,27 +24,29 @@ TEST(Log, Logging)
 	Log::error("Error message on line {}", "LogError", thirdLine);
 
 	std::ifstream in(Log::getCurrentLogFilePath());
-	std::string tem = (std::ostringstream() << in.rdbuf()).str();
+	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
-	ASSERT_NE(tem.find("INFO"), std::string::npos);
-	ASSERT_NE(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
+	ASSERT_NE(temp.find("INFO"), std::string::npos);
+	ASSERT_NE(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
 
-	ASSERT_NE(tem.find("WARNING"), std::string::npos);
-	ASSERT_NE(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
+	ASSERT_NE(temp.find("WARNING"), std::string::npos);
+	ASSERT_NE(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
 
-	ASSERT_NE(tem.find("ERROR"), std::string::npos);
-	ASSERT_NE(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
+	ASSERT_NE(temp.find("ERROR"), std::string::npos);
+	ASSERT_NE(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 
 	ASSERT_NO_THROW(Log::info("Log int", "LogInformation", 5));
 	ASSERT_NO_THROW(Log::warning("Log int", "LogWarning", 5));
 	ASSERT_NO_THROW(Log::error("Log int", "LogError", 5));
+
+	std::cout << temp << std::endl;
 }
 
 TEST(Log, ChangingLogFile)
 {
 	static constexpr size_t cycles = 2'500'000;
 
-	std::filesystem::path currentLogFile = Log::getCurrentLogFilePath();
+	std::filesystemp::path currentLogFile = Log::getCurrentLogFilePath();
 
 #ifdef NDEBUG
 	auto start = std::chrono::high_resolution_clock::now();
@@ -79,17 +81,19 @@ TEST(Log, DebugLogging)
 	LOG_DEBUG_ERROR("Error message on line {}", "LogError", thirdLine);
 
 	std::ifstream in(Log::getCurrentLogFilePath());
-	std::string tem = (std::ostringstream() << in.rdbuf()).str();
+	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
 #ifdef NDEBUG
-	ASSERT_EQ(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
-	ASSERT_EQ(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
-	ASSERT_EQ(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
+	ASSERT_EQ(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
+	ASSERT_EQ(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
+	ASSERT_EQ(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 #else
-	ASSERT_NE(tem.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
-	ASSERT_NE(tem.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
-	ASSERT_NE(tem.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
+	ASSERT_NE(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
+	ASSERT_NE(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
+	ASSERT_NE(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 #endif
+
+	std::cout << temp << std::endl;
 }
 
 int main(int argc, char** argv)

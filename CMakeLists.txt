@@ -24,4 +24,4 @@ install(
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	install(DIRECTORY src/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN "*.h")
-endif ()
+endif()

@@ -5,9 +5,11 @@
 #include <thread>
 #include <format>
 
-#ifndef __LINUX__
-#pragma warning (push)
-#pragma warning (disable: 26812)
+#ifdef __LINUX__
+#include <sys/types.h>
+#include <unistd.h> 
+#else
+#include <Windows.h>
 #endif
 
 using namespace std;
@@ -16,6 +18,15 @@ static constexpr uint16_t dateSize = 10;
 static constexpr uint16_t fullDateSize = 17;
 
 static unique_ptr<Log> instance;
+
+static auto getPID()
+{
+#ifdef __LINUX__
+	return getpid();
+#else
+	return GetCurrentProcessId();
+#endif
+}
 
 Log::dateFormat Log::dateFormatFromString(const string& source)
 {
@@ -33,11 +44,6 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 	}
 
 	throw invalid_argument("Can't convert source to dateFormat");
-}
-
-string Log::getCurrentThreadId() const
-{
-	return (ostringstream() << "thread id: " << this_thread::get_id()).str();
 }
 
 void Log::write(const string& data, level type)
@@ -110,7 +116,7 @@ void Log::nextLogFile()
 
 	logFile.open
 	(
-		(currentLogFilePath /= this->getFullCurrentDate()) += log_constants::fileExtension
+		(currentLogFilePath /= this->getFullCurrentDateUTC()) += log_constants::fileExtension
 	);
 
 	currentLogFileSize = 0;
@@ -146,13 +152,13 @@ string Log::getCurrentDate() const
 	switch (logDateFormat)
 	{
 	case Log::dateFormat::DMY:
-		return format("{0:%d.%m.%Y}", now);
+		return vformat("{0:%d.%m.%Y}", make_format_args(now));
 
 	case Log::dateFormat::MDY:
-		return format("{0:%m.%d.%Y}", now);
+		return vformat("{0:%m.%d.%Y}", make_format_args(now));
 
 	case Log::dateFormat::YMD:
-		return format("{0:%Y.%m.%d}", now);
+		return vformat("{0:%Y.%m.%d}", make_format_args(now));
 
 	default:
 		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
@@ -161,37 +167,168 @@ string Log::getCurrentDate() const
 	return {};
 }
 
-string Log::getFullCurrentDate() const
+string Log::getFullCurrentDateUTC() const
 {
 	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
+	string formatString = "[";
 
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		return format("{0:%d.%m.%Y-%H.%M.%S}", now);
+		formatString = "{0:%d.%m.%Y-%H.%M.%S}";
+
+		break;
 
 	case dateFormat::MDY:
-		return format("{0:%m.%d.%Y-%H.%M.%S}", now);
+		formatString = "{0:%m.%d.%Y-%H.%M.%S}";
+
+		break;
 
 	case dateFormat::YMD:
-		return format("{0:%Y.%m.%d-%H.%M.%S}", now);
+		formatString = "{0:%Y.%m.%d-%H.%M.%S}";
+
+		break;
 
 	default:
 		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
-	return {};
+	formatString = " UTC]";
+
+	return vformat(formatString, make_format_args(now));
 }
 
-void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
+string Log::getFullCurrentDateLocal() const
+{
+	auto now = chrono::current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
+	string_view zoneName = chrono::current_zone()->name();
+	string formatString = "[";
+
+	switch (logDateFormat)
+	{
+	case dateFormat::DMY:
+		formatString = "{0:%d.%m.%Y-%H.%M.%S}";
+
+		break;
+
+	case dateFormat::MDY:
+		formatString = "{0:%m.%d.%Y-%H.%M.%S}";
+
+		break;
+
+	case dateFormat::YMD:
+		formatString = "{0:%Y.%m.%d-%H.%M.%S}";
+
+		break;
+
+	default:
+		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+	}
+
+	formatString = " {1}]";
+
+	return vformat(formatString, make_format_args(now, zoneName));
+}
+
+string Log::getProcessName() const
+{
+	auto processId = getPID();
+	constexpr size_t bufferSize = 4096;
+	char buffer[bufferSize];
+	string result;
+
+#ifdef __LINUX__
+	FILE* file = popen(format("realpath /proc/{}/exe", processId).data(), "r");
+	
+	fread(buffer, sizeof(char), bufferSize, file);
+
+	result = buffer;
+
+	pclose(file);
+#else
+	HANDLE handle = OpenProcess
+	(
+		PROCESS_QUERY_LIMITED_INFORMATION,
+		FALSE,
+		processId
+	);
+
+	if (handle)
+	{
+		DWORD size = bufferSize;
+		
+		if (QueryFullProcessImageNameA(handle, NULL, buffer, &size))
+		{
+			result = buffer;
+		}
+		else
+		{
+			cerr << "Error GetModuleBaseNameA : " << GetLastError() << endl;
+		}
+
+		CloseHandle(handle);
+	}
+	else
+	{
+		cerr << "Error OpenProcess : " << GetLastError() << endl;
+	}
+#endif
+
+	return format("[process name: {}]", result);
+}
+
+string Log::getProcessId() const
+{
+	return format("[process id: {}]", getPID());
+}
+
+string Log::getThreadId() const
+{
+	return (ostringstream() << "[thread id: " << this_thread::get_id() << ']').str();
+}
+
+void Log::initModifiers(uint64_t flags)
+{
+	modifiers.clear();
+
+	if (flags & AdditionalInformation::utcDate)
+	{
+		modifiers.push_back(bind(&Log::getFullCurrentDateUTC, this));
+	}
+
+	if (flags & AdditionalInformation::localDate)
+	{
+		modifiers.push_back(bind(&Log::getFullCurrentDateLocal, this));
+	}
+
+	if (flags & AdditionalInformation::processName)
+	{
+		modifiers.push_back(bind(&Log::getProcessName, this));
+	}
+
+	if (flags & AdditionalInformation::processId)
+	{
+		modifiers.push_back(bind(&Log::getProcessId, this));
+	}
+
+	if (flags & AdditionalInformation::threadId)
+	{
+		modifiers.push_back(bind(&Log::getThreadId, this));
+	}
+}
+
+void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
 {
 	unique_lock<mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
 	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
+	this->flags = flags;
 
 	log_constants::logFileSize = defaultLogFileSize;
+
+	this->initModifiers(flags);
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
@@ -216,11 +353,11 @@ Log::Log() :
 	this->init();
 }
 
-Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize) :
+Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags) :
 	outputStream(nullptr),
 	errorStream(nullptr)
 {
-	this->init(logDateFormat, pathToLogs, defaultLogFileSize);
+	this->init(logDateFormat, pathToLogs, defaultLogFileSize, flags);
 }
 
 Log& Log::getInstance()
@@ -235,29 +372,29 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.3.2";
+	string version = "1.4.0";
 
 	return version;
 }
 
-void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
+void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
 {
 	if (instance)
 	{
 		return;
 	}
 
-	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize));
+	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize, flags));
 }
 
-void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize)
+void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
 {
 	if (instance)
 	{
 		return;
 	}
 
-	instance = unique_ptr<Log>(new Log(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize));
+	instance = unique_ptr<Log>(new Log(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize, flags));
 }
 
 void Log::duplicateLog(ostream& outputStream)
@@ -274,7 +411,3 @@ const filesystem::path& Log::getCurrentLogFilePath()
 {
 	return Log::getInstance().currentLogFilePath;
 }
-
-#ifndef __LINUX__
-#pragma warning (pop)
-#endif
