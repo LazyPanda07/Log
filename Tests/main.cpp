@@ -46,7 +46,7 @@ TEST(Log, ChangingLogFile)
 {
 	static constexpr size_t cycles = 2'500'000;
 
-	std::filesystemp::path currentLogFile = Log::getCurrentLogFilePath();
+	std::filesystem::path currentLogFile = Log::getCurrentLogFilePath();
 
 #ifdef NDEBUG
 	auto start = std::chrono::high_resolution_clock::now();
