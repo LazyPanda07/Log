@@ -20,8 +20,6 @@
 #include <vector>
 #include <functional>
 
-#include "LogConstants.h"
-
 #ifdef NDEBUG
 #define LOG_DEBUG_INFO(format, category, ...)
 #define LOG_DEBUG_WARNING(format, category, ...)
@@ -36,14 +34,7 @@
 
 class LOG_API Log
 {
-public:
-	enum class dateFormat
-	{
-		DMY,
-		MDY,
-		YMD
-	};
-
+private:
 	enum class level
 	{
 		info,
@@ -52,13 +43,40 @@ public:
 		fatalError
 	};
 
+	static inline constexpr size_t additionalInformationSize = 128;
+
+public:
+	/**
+	 * @brief Defaut size of each log file 128 MiB
+	 */
+	static inline uintmax_t logFileSize = 128 * 1024 * 1024;
+
+	/**
+	 * @brief File extension for generated files
+	 */
+	static inline std::string_view fileExtension = ".log";
+
+public:
+	/**
+	 * @brief Logging date format
+	 */
+	enum class dateFormat
+	{
+		DMY,
+		MDY,
+		YMD
+	};
+
+	/**
+	 * @brief Additional information for each log message
+	 */
 	enum AdditionalInformation : uint64_t
 	{
-		utcDate = 1,
-		localDate = utcDate << 1,
-		processName = localDate << 1,
-		processId = processName << 1,
-		threadId = processId << 1
+		utcDate = 1, /// Add UTC time
+		localDate = utcDate << 1, /// add local time
+		processName = localDate << 1, /// add process name
+		processId = processName << 1, /// add process id
+		threadId = processId << 1 /// add thread id
 	};
 
 private:
@@ -69,7 +87,7 @@ private:
 	std::filesystem::path executablePath;
 	std::vector<std::function<std::string()>> modifiers;
 	uint64_t flags;
-	int64_t processId;
+	int64_t executableProcessId;
 	size_t currentLogFileSize;
 	std::ostream* outputStream;
 	std::ostream* errorStream;
@@ -110,7 +128,7 @@ private:
 	(
 		dateFormat logDateFormat = dateFormat::DMY,
 		const std::filesystem::path& pathToLogs = "",
-		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uintmax_t defaultLogFileSize = Log::logFileSize,
 		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
 	);
 
@@ -156,7 +174,7 @@ public:
 	(
 		dateFormat logDateFormat = dateFormat::DMY,
 		const std::filesystem::path& pathToLogs = "",
-		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uintmax_t defaultLogFileSize = Log::logFileSize,
 		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
 	);
 
@@ -171,7 +189,7 @@ public:
 	(
 		const std::string& logDateFormat = "DMY",
 		const std::filesystem::path& pathToLogs = "",
-		uintmax_t defaultLogFileSize = log_constants::logFileSize,
+		uintmax_t defaultLogFileSize = Log::logFileSize,
 		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
 	);
 
@@ -189,9 +207,6 @@ public:
 
 	/**
 	 * @brief Get current log file path
-	 * @tparam ...Args 
-	 * @param format 
-	 * @param ...args 
 	 */
 	static const std::filesystem::path& getCurrentLogFilePath();
 
@@ -281,7 +296,7 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 	std::string result = std::vformat(format, std::make_format_args(args...));
 	std::string additionalInformation;
 
-	additionalInformation.reserve(log_constants::additionalInformationSize);
+	additionalInformation.reserve(Log::additionalInformationSize);
 
 	for (const std::function<std::string()>& modifier : modifiers)
 	{

@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['info_0',['info',['../class_log.html#ac04dda809a9b182a1d474d57b9905704',1,'Log']]]
+  ['getcurrentlogfilepath_0',['getCurrentLogFilePath',['../class_log.html#a3ca7988994ebad9a4e7cc01b236c90e3',1,'Log']]],
+  ['getexecutablepath_1',['getExecutablePath',['../class_log.html#aa92c91d521aa4a2f6890bd050d84ce6b',1,'Log']]],
+  ['getexecutableprocessid_2',['getExecutableProcessId',['../class_log.html#a148b2eb00edced562100a316115fc3ab',1,'Log']]],
+  ['getloglibraryversion_3',['getLogLibraryVersion',['../class_log.html#af3ba9b4b22eec82cde4f58398484d145',1,'Log']]]
 ];

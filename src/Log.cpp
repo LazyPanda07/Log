@@ -43,7 +43,7 @@ void Log::write(const string& data, level type)
 
 	currentLogFileSize += data.size();
 
-	if (currentLogFileSize >= log_constants::logFileSize || !this->checkDate())
+	if (currentLogFileSize >= Log::logFileSize || !this->checkDate())
 	{
 		this->nextLogFile();
 	}
@@ -107,7 +107,7 @@ void Log::nextLogFile()
 
 	logFile.open
 	(
-		(currentLogFilePath /= this->getFullCurrentDateFileName()) += log_constants::fileExtension
+		(currentLogFilePath /= this->getFullCurrentDateFileName()) += Log::fileExtension
 	);
 
 	currentLogFileSize = 0;
@@ -133,7 +133,7 @@ bool Log::checkDate() const
 
 bool Log::checkFileSize(const filesystem::path& filePath) const
 {
-	return filesystem::file_size(filePath) < log_constants::logFileSize;
+	return filesystem::file_size(filePath) < Log::logFileSize;
 }
 
 string Log::getCurrentDate() const
@@ -250,7 +250,7 @@ string Log::getProcessName() const
 
 string Log::getProcessId() const
 {
-	return format("[process id: {}]", processId);
+	return format("[process id: {}]", executableProcessId);
 }
 
 string Log::getThreadId() const
@@ -294,8 +294,8 @@ void Log::initExecutableInformation()
 	char buffer[bufferSize];
 
 #ifdef __LINUX__
-	processId = static_cast<int64_t>(getpid());
-	FILE* file = popen(format("realpath /proc/{}/exe", processId).data(), "r");
+	executableProcessId = static_cast<int64_t>(getpid());
+	FILE* file = popen(format("realpath /proc/{}/exe", executableProcessId).data(), "r");
 
 	fread(buffer, sizeof(char), bufferSize, file);
 
@@ -303,13 +303,13 @@ void Log::initExecutableInformation()
 
 	pclose(file);
 #else
-	processId = static_cast<int64_t>(GetCurrentProcessId());
+	executableProcessId = static_cast<int64_t>(GetCurrentProcessId());
 
 	HANDLE handle = OpenProcess
 	(
 		PROCESS_QUERY_LIMITED_INFORMATION,
 		FALSE,
-		processId
+		static_cast<DWORD>(executableProcessId)
 	);
 
 	if (handle)
@@ -343,7 +343,7 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	currentLogFilePath = basePath;
 	this->flags = flags;
 
-	log_constants::logFileSize = defaultLogFileSize;
+	Log::logFileSize = defaultLogFileSize;
 
 	this->initModifiers(flags);
 	this->initExecutableInformation();
@@ -437,5 +437,5 @@ const filesystem::path& Log::getExecutablePath()
 
 int64_t Log::getExecutableProcessId()
 {
-	return Log::getInstance().processId;
+	return Log::getInstance().executableProcessId;
 }

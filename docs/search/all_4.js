@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['getcurrentlogfilepath_0',['getCurrentLogFilePath',['../class_log.html#a3ca7988994ebad9a4e7cc01b236c90e3',1,'Log']]],
-  ['getloglibraryversion_1',['getLogLibraryVersion',['../class_log.html#af3ba9b4b22eec82cde4f58398484d145',1,'Log']]]
+  ['fatalerror_0',['fatalError',['../class_log.html#a0644d3f89e170b085cd4c058718d8975',1,'Log']]],
+  ['fileextension_1',['fileExtension',['../class_log.html#ac731197e91c08f9fda76afbf9b53b1dc',1,'Log']]]
 ];

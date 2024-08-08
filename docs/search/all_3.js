@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fatalerror_0',['fatalError',['../class_log.html#a0644d3f89e170b085cd4c058718d8975',1,'Log']]]
+  ['error_0',['error',['../class_log.html#ae2e81a74b15f5e7404e6ce2997a24ddc',1,'Log']]]
 ];

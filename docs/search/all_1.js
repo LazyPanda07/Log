@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['duplicateerrorlog_0',['duplicateErrorLog',['../class_log.html#a39a94a0d9c8179f6f644ecb5b9315e8a',1,'Log']]],
-  ['duplicatelog_1',['duplicateLog',['../class_log.html#a91ba15aceb96500707021d085e25821c',1,'Log']]]
+  ['configure_0',['configure',['../class_log.html#aeab0244f1d5011d3409cfb92b21bedaa',1,'Log::configure(dateFormat logDateFormat=dateFormat::DMY, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=Log::logFileSize, uint64_t flags=AdditionalInformation::utcDate|AdditionalInformation::processName|AdditionalInformation::processId)'],['../class_log.html#a1ab5fcef788989de4c725daed5102f6e',1,'Log::configure(const std::string &amp;logDateFormat=&quot;DMY&quot;, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=Log::logFileSize, uint64_t flags=AdditionalInformation::utcDate|AdditionalInformation::processName|AdditionalInformation::processId)']]]
 ];
