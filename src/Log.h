@@ -66,8 +66,10 @@ private:
 	std::mutex writeMutex;
 	std::filesystem::path currentLogFilePath;
 	std::filesystem::path basePath;
+	std::filesystem::path executablePath;
 	std::vector<std::function<std::string()>> modifiers;
 	uint64_t flags;
+	int64_t processId;
 	size_t currentLogFileSize;
 	std::ostream* outputStream;
 	std::ostream* errorStream;
@@ -101,6 +103,8 @@ private:
 	std::string getThreadId() const;
 
 	void initModifiers(uint64_t flags);
+
+	void initExecutableInformation();
 
 	void init
 	(
@@ -146,6 +150,7 @@ public:
 	* @param logDateFormat One of DMY, MDY, YMD
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
+	* @param flags Log::AdditionalInformation fields with bitwise OR(|) for multiple values
 	*/
 	static void configure
 	(
@@ -160,6 +165,7 @@ public:
 	* @param logDateFormat One of DMY, MDY, YMD
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
+	* @param flags Log::AdditionalInformation fields with bitwise OR(|) for multiple values
 	*/
 	static void configure
 	(
@@ -188,6 +194,18 @@ public:
 	 * @param ...args 
 	 */
 	static const std::filesystem::path& getCurrentLogFilePath();
+
+	/**
+	 * @brief Get path to executable
+	 * @return 
+	 */
+	static const std::filesystem::path& getExecutablePath();
+
+	/**
+	 * @brief Get executable process id
+	 * @return 
+	 */
+	static int64_t getExecutableProcessId();
 
 	/**
 	 * @brief Log some information

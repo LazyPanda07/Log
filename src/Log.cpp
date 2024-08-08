@@ -19,15 +19,6 @@ static constexpr uint16_t fullDateSize = 17;
 
 static unique_ptr<Log> instance;
 
-static auto getPID()
-{
-#ifdef __LINUX__
-	return getpid();
-#else
-	return GetCurrentProcessId();
-#endif
-}
-
 Log::dateFormat Log::dateFormatFromString(const string& source)
 {
 	if (source == "DMY")
@@ -254,54 +245,12 @@ string Log::getFullCurrentDateLocal() const
 
 string Log::getProcessName() const
 {
-	auto processId = getPID();
-	constexpr size_t bufferSize = 4096;
-	char buffer[bufferSize];
-	string result;
-
-#ifdef __LINUX__
-	FILE* file = popen(format("realpath /proc/{}/exe", processId).data(), "r");
-	
-	fread(buffer, sizeof(char), bufferSize, file);
-
-	result = buffer;
-
-	pclose(file);
-#else
-	HANDLE handle = OpenProcess
-	(
-		PROCESS_QUERY_LIMITED_INFORMATION,
-		FALSE,
-		processId
-	);
-
-	if (handle)
-	{
-		DWORD size = bufferSize;
-		
-		if (QueryFullProcessImageNameA(handle, NULL, buffer, &size))
-		{
-			result = buffer;
-		}
-		else
-		{
-			cerr << "Error GetModuleBaseNameA : " << GetLastError() << endl;
-		}
-
-		CloseHandle(handle);
-	}
-	else
-	{
-		cerr << "Error OpenProcess : " << GetLastError() << endl;
-	}
-#endif
-
-	return format("[process name: {}]", result);
+	return format("[process name: {}]", executablePath.string());
 }
 
 string Log::getProcessId() const
 {
-	return format("[process id: {}]", getPID());
+	return format("[process id: {}]", processId);
 }
 
 string Log::getThreadId() const
@@ -339,6 +288,52 @@ void Log::initModifiers(uint64_t flags)
 	}
 }
 
+void Log::initExecutableInformation()
+{
+	constexpr size_t bufferSize = 4096;
+	char buffer[bufferSize];
+
+#ifdef __LINUX__
+	processId = static_cast<int64_t>(getpid());
+	FILE* file = popen(format("realpath /proc/{}/exe", processId).data(), "r");
+
+	fread(buffer, sizeof(char), bufferSize, file);
+
+	executablePath = buffer;
+
+	pclose(file);
+#else
+	processId = static_cast<int64_t>(GetCurrentProcessId());
+
+	HANDLE handle = OpenProcess
+	(
+		PROCESS_QUERY_LIMITED_INFORMATION,
+		FALSE,
+		processId
+	);
+
+	if (handle)
+	{
+		DWORD size = bufferSize;
+
+		if (QueryFullProcessImageNameA(handle, NULL, buffer, &size))
+		{
+			executablePath = buffer;
+		}
+		else
+		{
+			cerr << "Error GetModuleBaseNameA : " << GetLastError() << endl;
+		}
+
+		CloseHandle(handle);
+	}
+	else
+	{
+		cerr << "Error OpenProcess : " << GetLastError() << endl;
+	}
+#endif
+}
+
 void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
 {
 	unique_lock<mutex> lock(writeMutex);
@@ -351,6 +346,7 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	log_constants::logFileSize = defaultLogFileSize;
 
 	this->initModifiers(flags);
+	this->initExecutableInformation();
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
@@ -432,4 +428,14 @@ void Log::duplicateErrorLog(ostream& errorStream)
 const filesystem::path& Log::getCurrentLogFilePath()
 {
 	return Log::getInstance().currentLogFilePath;
+}
+
+const filesystem::path& Log::getExecutablePath()
+{
+	return Log::getInstance().executablePath;
+}
+
+int64_t Log::getExecutableProcessId()
+{
+	return Log::getInstance().processId;
 }
