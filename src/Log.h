@@ -88,6 +88,8 @@ private:
 
 	std::string getCurrentDate() const;
 
+	std::string getFullCurrentDateFileName() const;
+
 	std::string getFullCurrentDateUTC() const;
 
 	std::string getFullCurrentDateLocal() const;

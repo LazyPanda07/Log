@@ -26,8 +26,6 @@ TEST(Log, Logging)
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
-	std::cout << temp << std::endl;
-
 	ASSERT_NE(temp.find("INFO"), std::string::npos);
 	ASSERT_NE(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
 
@@ -82,8 +80,6 @@ TEST(Log, DebugLogging)
 
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string temp = (std::ostringstream() << in.rdbuf()).str();
-
-	std::cout << temp << std::endl;
 
 #ifdef NDEBUG
 	ASSERT_EQ(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);

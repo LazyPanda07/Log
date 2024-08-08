@@ -116,7 +116,7 @@ void Log::nextLogFile()
 
 	logFile.open
 	(
-		(currentLogFilePath /= this->getFullCurrentDateUTC()) += log_constants::fileExtension
+		(currentLogFilePath /= this->getFullCurrentDateFileName()) += log_constants::fileExtension
 	);
 
 	currentLogFileSize = 0;
@@ -167,6 +167,28 @@ string Log::getCurrentDate() const
 	return {};
 }
 
+string Log::getFullCurrentDateFileName() const
+{
+	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
+
+	switch (logDateFormat)
+	{
+	case dateFormat::DMY:
+		return vformat("{0:%d.%m.%Y-%H.%M.%S}", make_format_args(now));
+
+	case dateFormat::MDY:
+		return vformat("{0:%m.%d.%Y-%H.%M.%S}", make_format_args(now));
+
+	case dateFormat::YMD:
+		return vformat("{0:%Y.%m.%d-%H.%M.%S}", make_format_args(now));
+
+	default:
+		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+	}
+
+	return {};
+}
+
 string Log::getFullCurrentDateUTC() const
 {
 	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
@@ -175,17 +197,17 @@ string Log::getFullCurrentDateUTC() const
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		formatString = "{0:%d.%m.%Y-%H.%M.%S}";
+		formatString += "{0:%d.%m.%Y-%H.%M.%S}";
 
 		break;
 
 	case dateFormat::MDY:
-		formatString = "{0:%m.%d.%Y-%H.%M.%S}";
+		formatString += "{0:%m.%d.%Y-%H.%M.%S}";
 
 		break;
 
 	case dateFormat::YMD:
-		formatString = "{0:%Y.%m.%d-%H.%M.%S}";
+		formatString += "{0:%Y.%m.%d-%H.%M.%S}";
 
 		break;
 
@@ -193,7 +215,7 @@ string Log::getFullCurrentDateUTC() const
 		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
-	formatString = " UTC]";
+	formatString += " UTC]";
 
 	return vformat(formatString, make_format_args(now));
 }
@@ -207,17 +229,17 @@ string Log::getFullCurrentDateLocal() const
 	switch (logDateFormat)
 	{
 	case dateFormat::DMY:
-		formatString = "{0:%d.%m.%Y-%H.%M.%S}";
+		formatString += "{0:%d.%m.%Y-%H.%M.%S}";
 
 		break;
 
 	case dateFormat::MDY:
-		formatString = "{0:%m.%d.%Y-%H.%M.%S}";
+		formatString += "{0:%m.%d.%Y-%H.%M.%S}";
 
 		break;
 
 	case dateFormat::YMD:
-		formatString = "{0:%Y.%m.%d-%H.%M.%S}";
+		formatString += "{0:%Y.%m.%d-%H.%M.%S}";
 
 		break;
 
@@ -225,7 +247,7 @@ string Log::getFullCurrentDateLocal() const
 		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
-	formatString = " {1}]";
+	formatString += " {1}]";
 
 	return vformat(formatString, make_format_args(now, zoneName));
 }
