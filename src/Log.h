@@ -268,7 +268,7 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 		additionalInformation += modifier();
 	}
 
-	additionalInformation.append(' ').append(category).append(": ");
+	additionalInformation += std::format(" {}: ", category);
 
 	switch (type)
 	{
