@@ -26,6 +26,8 @@ TEST(Log, Logging)
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
+	std::cout << temp << std::endl;
+
 	ASSERT_NE(temp.find("INFO"), std::string::npos);
 	ASSERT_NE(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
 
@@ -38,8 +40,6 @@ TEST(Log, Logging)
 	ASSERT_NO_THROW(Log::info("Log int", "LogInformation", 5));
 	ASSERT_NO_THROW(Log::warning("Log int", "LogWarning", 5));
 	ASSERT_NO_THROW(Log::error("Log int", "LogError", 5));
-
-	std::cout << temp << std::endl;
 }
 
 TEST(Log, ChangingLogFile)
@@ -83,6 +83,8 @@ TEST(Log, DebugLogging)
 	std::ifstream in(Log::getCurrentLogFilePath());
 	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
+	std::cout << temp << std::endl;
+
 #ifdef NDEBUG
 	ASSERT_EQ(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
 	ASSERT_EQ(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
@@ -92,8 +94,6 @@ TEST(Log, DebugLogging)
 	ASSERT_NE(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
 	ASSERT_NE(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
 #endif
-
-	std::cout << temp << std::endl;
 }
 
 int main(int argc, char** argv)
