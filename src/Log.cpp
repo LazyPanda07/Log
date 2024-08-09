@@ -213,8 +213,8 @@ string Log::getFullCurrentDateUTC() const
 
 string Log::getFullCurrentDateLocal() const
 {
-	auto now = chrono::current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
-	string_view zoneName = chrono::current_zone()->name();
+	auto now = chrono::get_tzdb().current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
+	string_view zoneName = chrono::get_tzdb().current_zone()->name();
 	string formatString = "[";
 
 	switch (logDateFormat)
@@ -390,7 +390,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.4.0";
+	string version = "1.4.1";
 
 	return version;
 }
