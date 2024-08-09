@@ -4,11 +4,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install-dir CACHE STRING "")
 option(BUILD_SHARED_LIBS "" OFF)
 
+project(Log)
+
 if (UNIX)
 	add_definitions(-D__LINUX__)
-endif (UNIX)
 
-project(Log)
+	if (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+		add_definitions(-D__ANDROID__)
+	endif()
+endif (UNIX)
 
 add_library(
 	${PROJECT_NAME} SHARED

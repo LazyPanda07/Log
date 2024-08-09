@@ -211,6 +211,7 @@ string Log::getFullCurrentDateUTC() const
 	return vformat(formatString, make_format_args(now));
 }
 
+#ifndef __ANDROID__
 string Log::getFullCurrentDateLocal() const
 {
 	auto now = chrono::get_tzdb().current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
@@ -242,6 +243,7 @@ string Log::getFullCurrentDateLocal() const
 
 	return vformat(formatString, make_format_args(now, zoneName));
 }
+#endif
 
 string Log::getProcessName() const
 {
@@ -267,10 +269,12 @@ void Log::initModifiers(uint64_t flags)
 		modifiers.push_back(bind(&Log::getFullCurrentDateUTC, this));
 	}
 
+#ifndef __ANDROID__
 	if (flags & AdditionalInformation::localDate)
 	{
 		modifiers.push_back(bind(&Log::getFullCurrentDateLocal, this));
 	}
+#endif
 
 	if (flags & AdditionalInformation::processName)
 	{
@@ -390,7 +394,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.4.1";
+	string version = "1.4.2";
 
 	return version;
 }

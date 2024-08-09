@@ -73,10 +73,12 @@ public:
 	enum AdditionalInformation : uint64_t
 	{
 		utcDate = 1, /// Add UTC time
-		localDate = utcDate << 1, /// add local time
-		processName = localDate << 1, /// add process name
-		processId = processName << 1, /// add process id
-		threadId = processId << 1 /// add thread id
+#ifndef __ANDROID__
+		localDate = 2, /// add local time
+#endif
+		processName = 4, /// add process name
+		processId = 8, /// add process id
+		threadId = 16 /// add thread id
 	};
 
 private:
@@ -112,7 +114,9 @@ private:
 
 	std::string getFullCurrentDateUTC() const;
 
+#ifndef __ANDROID__
 	std::string getFullCurrentDateLocal() const;
+#endif
 
 	std::string getProcessName() const;
 
