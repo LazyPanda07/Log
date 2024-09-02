@@ -209,6 +209,8 @@ public:
 	 */
 	static void duplicateErrorLog(std::ostream& errorStream);
 
+	static bool isValid();
+
 	/**
 	 * @brief Get current log file path
 	 */

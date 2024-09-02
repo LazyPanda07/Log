@@ -394,7 +394,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.4.2";
+	string version = "1.5.0";
 
 	return version;
 }
@@ -427,6 +427,11 @@ void Log::duplicateLog(ostream& outputStream)
 void Log::duplicateErrorLog(ostream& errorStream)
 {
 	Log::getInstance().errorStream = &errorStream;
+}
+
+bool Log::isValid()
+{
+	return static_cast<bool>(instance);
 }
 
 const filesystem::path& Log::getCurrentLogFilePath()
