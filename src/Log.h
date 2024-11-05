@@ -304,7 +304,7 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 
 	additionalInformation.reserve(Log::additionalInformationSize);
 
-	for (const std::function<std::string()>& modifier : modifiers)
+	for (const auto& modifier : modifiers)
 	{
 		additionalInformation += modifier();
 	}

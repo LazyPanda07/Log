@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Log<span id="projectnumber">&#160;v1.5.0</span>
+   <div id="projectname">Log<span id="projectnumber">&#160;v1.5.1</span>
    </div>
    <div id="projectbrief">Logging system</div>
   </td>
@@ -334,7 +334,7 @@ $(function(){ initResizable(false); });
 <div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
 <div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    additionalInformation.reserve(Log::additionalInformationSize);</div>
 <div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> std::function&lt;std::string()&gt;&amp; modifier : modifiers)</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    <span class="keywordflow">for</span> (<span class="keyword">const</span> <span class="keyword">auto</span>&amp; modifier : modifiers)</div>
 <div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    {</div>
 <div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>        additionalInformation += modifier();</div>
 <div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    }</div>

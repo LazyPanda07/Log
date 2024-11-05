@@ -266,29 +266,29 @@ void Log::initModifiers(uint64_t flags)
 
 	if (flags & AdditionalInformation::utcDate)
 	{
-		modifiers.push_back(bind(&Log::getFullCurrentDateUTC, this));
+		modifiers.emplace_back(bind(&Log::getFullCurrentDateUTC, this));
 	}
 
 #ifndef __ANDROID__
 	if (flags & AdditionalInformation::localDate)
 	{
-		modifiers.push_back(bind(&Log::getFullCurrentDateLocal, this));
+		modifiers.emplace_back(bind(&Log::getFullCurrentDateLocal, this));
 	}
 #endif
 
 	if (flags & AdditionalInformation::processName)
 	{
-		modifiers.push_back(bind(&Log::getProcessName, this));
+		modifiers.emplace_back(bind(&Log::getProcessName, this));
 	}
 
 	if (flags & AdditionalInformation::processId)
 	{
-		modifiers.push_back(bind(&Log::getProcessId, this));
+		modifiers.emplace_back(bind(&Log::getProcessId, this));
 	}
 
 	if (flags & AdditionalInformation::threadId)
 	{
-		modifiers.push_back(bind(&Log::getThreadId, this));
+		modifiers.emplace_back(bind(&Log::getThreadId, this));
 	}
 }
 
@@ -386,7 +386,7 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
-		instance = unique_ptr<Log>(new Log());
+		instance = make_unique<Log>();
 	}
 
 	return *instance;
@@ -394,7 +394,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.5.0";
+	string version = "1.5.1";
 
 	return version;
 }
