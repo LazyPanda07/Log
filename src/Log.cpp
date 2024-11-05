@@ -386,7 +386,7 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
-		instance = make_unique<Log>(new Log());
+		instance = unique_ptr<Log>(new Log());
 	}
 
 	return *instance;
