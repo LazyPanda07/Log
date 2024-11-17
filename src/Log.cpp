@@ -211,7 +211,6 @@ string Log::getFullCurrentDateUTC() const
 	return vformat(formatString, make_format_args(now));
 }
 
-#ifndef __ANDROID__
 string Log::getFullCurrentDateLocal() const
 {
 	auto now = chrono::get_tzdb().current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
@@ -236,14 +235,13 @@ string Log::getFullCurrentDateLocal() const
 		break;
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+		throw runtime_error(format("Wrong dateFormat in {}", __func__));
 	}
 
 	formatString += " {1}]";
 
 	return vformat(formatString, make_format_args(now, zoneName));
 }
-#endif
 
 string Log::getProcessName() const
 {
@@ -269,12 +267,10 @@ void Log::initModifiers(uint64_t flags)
 		modifiers.emplace_back(bind(&Log::getFullCurrentDateUTC, this));
 	}
 
-#ifndef __ANDROID__
 	if (flags & AdditionalInformation::localDate)
 	{
 		modifiers.emplace_back(bind(&Log::getFullCurrentDateLocal, this));
 	}
-#endif
 
 	if (flags & AdditionalInformation::processName)
 	{
@@ -394,9 +390,32 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.5.1";
+	string version = "1.6.0";
 
 	return version;
+}
+
+uint64_t Log::createFlags(const vector<string>& values)
+{
+#define ADD_FLAG(flagName) { #flagName, AdditionalInformation::flagName }
+
+	const unordered_map<string, uint64_t> flagNameToFlag =
+	{
+		ADD_FLAG(utcDate),
+		ADD_FLAG(localDate),
+		ADD_FLAG(processName),
+		ADD_FLAG(processId),
+		ADD_FLAG(threadId)
+	};
+	uint64_t flags = 0;
+
+	for (const string& value : values)
+	{
+		flags |= flagNameToFlag.at(value);
+	}
+
+	return flags;
+#undef ADD_FLAG
 }
 
 void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)

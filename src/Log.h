@@ -73,9 +73,7 @@ public:
 	enum AdditionalInformation : uint64_t
 	{
 		utcDate = 1, /// Add UTC time
-#ifndef __ANDROID__
 		localDate = 2, /// add local time
-#endif
 		processName = 4, /// add process name
 		processId = 8, /// add process id
 		threadId = 16 /// add thread id
@@ -114,9 +112,7 @@ private:
 
 	std::string getFullCurrentDateUTC() const;
 
-#ifndef __ANDROID__
 	std::string getFullCurrentDateLocal() const;
-#endif
 
 	std::string getProcessName() const;
 
@@ -166,6 +162,13 @@ public:
 	 * @return 
 	 */
 	static std::string getLogLibraryVersion();
+	
+	/**
+	 * @brief Create flags from string
+	 * @param values Array of Log::AdditionalInformation strings
+	 * @return 
+	 */
+	static uint64_t createFlags(const std::vector<std::string>& values);
 
 	/**
 	* @brief Additional configuration

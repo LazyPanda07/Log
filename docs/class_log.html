@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Log<span id="projectnumber">&#160;v1.5.1</span>
+   <div id="projectname">Log<span id="projectnumber">&#160;v1.6.0</span>
    </div>
    <div id="projectbrief">Logging system</div>
   </td>
@@ -120,6 +120,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:af3ba9b4b22eec82cde4f58398484d145" id="r_af3ba9b4b22eec82cde4f58398484d145"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3ba9b4b22eec82cde4f58398484d145">getLogLibraryVersion</a> ()</td></tr>
 <tr class="memdesc:af3ba9b4b22eec82cde4f58398484d145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get <a class="el" href="class_log.html">Log</a> library version.  <br /></td></tr>
 <tr class="separator:af3ba9b4b22eec82cde4f58398484d145"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ccff1fdf856694a7a66eaf2f2abdcb5" id="r_a1ccff1fdf856694a7a66eaf2f2abdcb5"><td class="memItemLeft" align="right" valign="top">static uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ccff1fdf856694a7a66eaf2f2abdcb5">createFlags</a> (const std::vector&lt; std::string &gt; &amp;values)</td></tr>
+<tr class="memdesc:a1ccff1fdf856694a7a66eaf2f2abdcb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create flags from string.  <br /></td></tr>
+<tr class="separator:a1ccff1fdf856694a7a66eaf2f2abdcb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeab0244f1d5011d3409cfb92b21bedaa" id="r_aeab0244f1d5011d3409cfb92b21bedaa"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeab0244f1d5011d3409cfb92b21bedaa">configure</a> (<a class="el" href="#a7dfb4577db65a55fdc00d6c7adbe8afb">dateFormat</a> logDateFormat=dateFormat::DMY, const std::filesystem::path &amp;pathToLogs=&quot;&quot;, uintmax_t defaultLogFileSize=<a class="el" href="#a9c2f2e5a18e4929edb6c0bf025f46f67">Log::logFileSize</a>, uint64_t flags=AdditionalInformation::utcDate|<a class="el" href="#aa4f348b4c403ca823b933d9e2c62d6e2af80909695e9af733d7199348cb3c65b9">AdditionalInformation::processName</a>|<a class="el" href="#aa4f348b4c403ca823b933d9e2c62d6e2a8c11c7dad388091c1c6141d6ba12fba2">AdditionalInformation::processId</a>)</td></tr>
 <tr class="memdesc:aeab0244f1d5011d3409cfb92b21bedaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional configuration.  <br /></td></tr>
 <tr class="separator:aeab0244f1d5011d3409cfb92b21bedaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -304,6 +307,40 @@ struct&#160;</td><td class="memItemRight" valign="bottom"><b>std::default_delete
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a1ccff1fdf856694a7a66eaf2f2abdcb5" name="a1ccff1fdf856694a7a66eaf2f2abdcb5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ccff1fdf856694a7a66eaf2f2abdcb5">&#9670;&#160;</a></span>createFlags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t Log::createFlags </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>values</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create flags from string. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">values</td><td>Array of <a class="el" href="#aa4f348b4c403ca823b933d9e2c62d6e2" title="Additional information for each log message.">Log::AdditionalInformation</a> strings </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
