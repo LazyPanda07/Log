@@ -7,7 +7,9 @@
 
 #ifdef __LINUX__
 #include <sys/types.h>
-#include <unistd.h> 
+#include <unistd.h>
+#elif defined(__ANDROID__)
+#include <ctime>
 #else
 #include <Windows.h>
 #endif
@@ -35,6 +37,17 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 	}
 
 	throw invalid_argument("Can't convert source to dateFormat");
+}
+
+string_view Log::getLocalTimeZoneName()
+{
+#ifdef __ANDROID__
+	tzset();
+
+	return tzname[0];
+#else
+	return chrono::get_tzdb().current_zone()->name();
+#endif
 }
 
 void Log::write(const string& data, level type)
@@ -213,8 +226,43 @@ string Log::getFullCurrentDateUTC() const
 
 string Log::getFullCurrentDateLocal() const
 {
+#ifdef __ANDROID__
+	auto now = chrono::system_clock::now();
+	time_t currentTime = chrono::system_clock::to_time_t(now);
+	string formatString;
+
+	tm localTime;
+	localtime_r(&currentTime, &localTime);
+
+	switch (logDateFormat)
+	{
+	case dateFormat::DMY:
+		formatString += "%d.%m.%Y-%H.%M.%S";
+
+		break;
+
+	case dateFormat::MDY:
+		formatString += "%m.%d.%Y-%H.%M.%S";
+
+		break;
+
+	case dateFormat::YMD:
+		formatString += "%Y.%m.%d-%H.%M.%S";
+
+		break;
+
+	default:
+		throw runtime_error(format("Wrong dateFormat in {}", __func__));
+	}
+
+	string currentDateLocal(256, '\0');
+
+	currentDateLocal.resize(strftime(currentDateLocal.data(), currentDateLocal.size(), formatString.data(), &localTime));
+
+	return format("[{} {}]", currentDateLocal, Log::getLocalTimeZoneName());
+#else
 	auto now = chrono::get_tzdb().current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
-	string_view zoneName = chrono::get_tzdb().current_zone()->name();
+	string_view zoneName = Log::getLocalTimeZoneName();
 	string formatString = "[";
 
 	switch (logDateFormat)
@@ -241,6 +289,7 @@ string Log::getFullCurrentDateLocal() const
 	formatString += " {1}]";
 
 	return vformat(formatString, make_format_args(now, zoneName));
+#endif
 }
 
 string Log::getProcessName() const
@@ -378,6 +427,13 @@ Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t
 	this->init(logDateFormat, pathToLogs, defaultLogFileSize, flags);
 }
 
+Log& Log::operator +=(const string& message)
+{
+	this->log(level::info, "{}", "LogTemp", message);
+
+	return *this;
+}
+
 Log& Log::getInstance()
 {
 	if (!instance)
@@ -390,7 +446,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.6.0";
+	string version = "1.7.0";
 
 	return version;
 }

@@ -25,11 +25,19 @@
 #define LOG_DEBUG_WARNING(format, category, ...)
 #define LOG_DEBUG_ERROR(format, category, ...)
 #define LOG_DEBUG_FATAL_ERROR(format, category, errorCode, ...)
+#define LOG_IF_VALID_INFO(format, category, ...)
+#define LOG_IF_VALID_WARNING(format, category, ...)
+#define LOG_IF_VALID_ERROR(format, category, ...)
+#define LOG_IF_VALID_FATAL_ERROR(format, category, ...)
 #else
 #define LOG_DEBUG_INFO(format, category, ...) Log::info(format, category, __VA_ARGS__)
 #define LOG_DEBUG_WARNING(format, category, ...) Log::warning(format, category, __VA_ARGS__)
 #define LOG_DEBUG_ERROR(format, category, ...) Log::error(format, category, __VA_ARGS__)
 #define LOG_DEBUG_FATAL_ERROR(format, category, errorCode, ...) Log::fatalError(format, category, exitCode, __VA_ARGS__)
+#define LOG_IF_VALID_INFO(format, category, ...) if (Log::isValid()) { Log::info(format, category, __VA_ARGS__); }
+#define LOG_IF_VALID_WARNING(format, category, ...) if (Log::isValid()) { Log::warning(format, category, __VA_ARGS__); }
+#define LOG_IF_VALID_ERROR(format, category, ...) if (Log::isValid()) { Log::error(format, category, __VA_ARGS__); }
+#define LOG_IF_VALID_FATAL_ERROR(format, category, ...) if (Log::isValid()) { Log::fatalError(format, category, exitCode, __VA_ARGS__); }
 #endif
 
 class LOG_API Log
@@ -96,6 +104,8 @@ private:
 private:
 	static dateFormat dateFormatFromString(const std::string& source);
 
+	static std::string_view getLocalTimeZoneName();
+
 	void write(const std::string& data, level type);
 
 	void nextLogFile();
@@ -150,23 +160,33 @@ private:
 	friend struct std::default_delete<Log>;
 
 private:
-	static Log& getInstance();
-
-private:
 	template<typename... Args>
 	void log(level type, std::string_view format, std::string_view category, Args&&... args);
 
 public:
 	/**
-	 * @brief Get Log library version
+	 * @brief Print to log
+	 * @param message 
 	 * @return 
 	 */
+	Log& operator +=(const std::string& message);
+
+	/**
+	 * @brief Get logger instance
+	 * @return 
+	 */
+	static Log& getInstance();
+
+	/**
+	 * @brief Get Log library version
+	 * @return
+	 */
 	static std::string getLogLibraryVersion();
-	
+
 	/**
 	 * @brief Create flags from string
 	 * @param values Array of Log::AdditionalInformation strings
-	 * @return 
+	 * @return
 	 */
 	static uint64_t createFlags(const std::vector<std::string>& values);
 
@@ -202,7 +222,7 @@ public:
 
 	/**
 	 * @brief Also output log information into stream
-	 * @param outputStream 
+	 * @param outputStream
 	 */
 	static void duplicateLog(std::ostream& outputStream);
 
@@ -212,6 +232,10 @@ public:
 	 */
 	static void duplicateErrorLog(std::ostream& errorStream);
 
+	/**
+	 * @brief Is logger is valid
+	 * @return 
+	 */
 	static bool isValid();
 
 	/**
@@ -221,19 +245,19 @@ public:
 
 	/**
 	 * @brief Get path to executable
-	 * @return 
+	 * @return
 	 */
 	static const std::filesystem::path& getExecutablePath();
 
 	/**
 	 * @brief Get executable process id
-	 * @return 
+	 * @return
 	 */
 	static int64_t getExecutableProcessId();
 
 	/**
 	 * @brief Log some information
-	 * @tparam ...Args 
+	 * @tparam ...Args
 	 * @param format Information with {} brackets for insertions
 	 * @param category Log category
 	 * @param ...args Insertions
@@ -263,11 +287,11 @@ public:
 
 	/**
 	 * @brief Log and exit
-	 * @tparam ...Args 
+	 * @tparam ...Args
 	 * @param format Fatal error message with {} brackets for insertions
 	 * @param category Log category
 	 * @param exitCode Exit code
-	 * @param ...args 
+	 * @param ...args
 	 */
 	template<typename... Args>
 	static void fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args);

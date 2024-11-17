@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install-dir CACHE STRING "")
 option(BUILD_SHARED_LIBS "" OFF)
 
-project(Log VERSION	1.6.0)
+project(Log VERSION	1.7.0)
 
 if (UNIX)
 	add_definitions(-D__LINUX__)

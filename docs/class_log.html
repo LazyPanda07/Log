@@ -25,7 +25,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Log<span id="projectnumber">&#160;v1.6.0</span>
+   <div id="projectname">Log<span id="projectnumber">&#160;v1.7.0</span>
    </div>
    <div id="projectbrief">Logging system</div>
   </td>
@@ -87,6 +87,7 @@ $(function(){ initResizable(false); });
 <div class="header">
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="#friends">Friends</a> &#124;
@@ -115,8 +116,17 @@ Public Types</h2></td></tr>
 <tr class="memdesc:aa4f348b4c403ca823b933d9e2c62d6e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Additional information for each log message.  <a href="#aa4f348b4c403ca823b933d9e2c62d6e2">More...</a><br /></td></tr>
 <tr class="separator:aa4f348b4c403ca823b933d9e2c62d6e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a3292baa81c320e32cc19ebf81854431d" id="r_a3292baa81c320e32cc19ebf81854431d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="class_log.html">Log</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3292baa81c320e32cc19ebf81854431d">operator+=</a> (const std::string &amp;message)</td></tr>
+<tr class="memdesc:a3292baa81c320e32cc19ebf81854431d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Print to log.  <br /></td></tr>
+<tr class="separator:a3292baa81c320e32cc19ebf81854431d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ab81f2d9b77cf39e681a0440d236320f9" id="r_ab81f2d9b77cf39e681a0440d236320f9"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="class_log.html">Log</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab81f2d9b77cf39e681a0440d236320f9">getInstance</a> ()</td></tr>
+<tr class="memdesc:ab81f2d9b77cf39e681a0440d236320f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get logger instance.  <br /></td></tr>
+<tr class="separator:ab81f2d9b77cf39e681a0440d236320f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3ba9b4b22eec82cde4f58398484d145" id="r_af3ba9b4b22eec82cde4f58398484d145"><td class="memItemLeft" align="right" valign="top">static std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3ba9b4b22eec82cde4f58398484d145">getLogLibraryVersion</a> ()</td></tr>
 <tr class="memdesc:af3ba9b4b22eec82cde4f58398484d145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get <a class="el" href="class_log.html">Log</a> library version.  <br /></td></tr>
 <tr class="separator:af3ba9b4b22eec82cde4f58398484d145"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,8 +145,8 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a39a94a0d9c8179f6f644ecb5b9315e8a" id="r_a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a39a94a0d9c8179f6f644ecb5b9315e8a">duplicateErrorLog</a> (std::ostream &amp;errorStream)</td></tr>
 <tr class="memdesc:a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Also output log error information into stream.  <br /></td></tr>
 <tr class="separator:a39a94a0d9c8179f6f644ecb5b9315e8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ede70d6c9c6fc6a03830451936f0f9c" id="r_a5ede70d6c9c6fc6a03830451936f0f9c"><td class="memItemLeft" align="right" valign="top"><a id="a5ede70d6c9c6fc6a03830451936f0f9c" name="a5ede70d6c9c6fc6a03830451936f0f9c"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>isValid</b> ()</td></tr>
+<tr class="memitem:a5ede70d6c9c6fc6a03830451936f0f9c" id="r_a5ede70d6c9c6fc6a03830451936f0f9c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5ede70d6c9c6fc6a03830451936f0f9c">isValid</a> ()</td></tr>
+<tr class="memdesc:a5ede70d6c9c6fc6a03830451936f0f9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is logger is valid.  <br /></td></tr>
 <tr class="separator:a5ede70d6c9c6fc6a03830451936f0f9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ca7988994ebad9a4e7cc01b236c90e3" id="r_a3ca7988994ebad9a4e7cc01b236c90e3"><td class="memItemLeft" align="right" valign="top"><a id="a3ca7988994ebad9a4e7cc01b236c90e3" name="a3ca7988994ebad9a4e7cc01b236c90e3"></a>
 static const std::filesystem::path &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getCurrentLogFilePath</b> ()</td></tr>
@@ -576,6 +586,34 @@ template&lt;typename... Args&gt; </div>
 
 </div>
 </div>
+<a id="ab81f2d9b77cf39e681a0440d236320f9" name="ab81f2d9b77cf39e681a0440d236320f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab81f2d9b77cf39e681a0440d236320f9">&#9670;&#160;</a></span>getInstance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_log.html">Log</a> &amp; Log::getInstance </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Get logger instance. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
 <a id="af3ba9b4b22eec82cde4f58398484d145" name="af3ba9b4b22eec82cde4f58398484d145"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af3ba9b4b22eec82cde4f58398484d145">&#9670;&#160;</a></span>getLogLibraryVersion()</h2>
 
@@ -653,6 +691,60 @@ template&lt;typename... Args&gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a5ede70d6c9c6fc6a03830451936f0f9c" name="a5ede70d6c9c6fc6a03830451936f0f9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ede70d6c9c6fc6a03830451936f0f9c">&#9670;&#160;</a></span>isValid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Log::isValid </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Is logger is valid. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+</div>
+</div>
+<a id="a3292baa81c320e32cc19ebf81854431d" name="a3292baa81c320e32cc19ebf81854431d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3292baa81c320e32cc19ebf81854431d">&#9670;&#160;</a></span>operator+=()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="class_log.html">Log</a> &amp; Log::operator+= </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;</td>          <td class="paramname"><span class="paramname"><em>message</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Print to log. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">message</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
 
 </div>
 </div>
