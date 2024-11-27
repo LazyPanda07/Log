@@ -42,8 +42,6 @@ Log::dateFormat Log::dateFormatFromString(const string& source)
 string_view Log::getLocalTimeZoneName()
 {
 #ifdef __ANDROID__
-	tzset();
-
 	return tzname[0];
 #else
 	return chrono::get_tzdb().current_zone()->name();
@@ -350,6 +348,12 @@ void Log::initExecutableInformation()
 
 	executablePath = buffer;
 
+	string temp = executablePath.string();
+
+	temp.erase(remove(temp.begin(), temp.end(), '\n'), temp.cend());
+
+	executablePath = temp;
+
 	pclose(file);
 #else
 	executableProcessId = static_cast<int64_t>(GetCurrentProcessId());
@@ -396,6 +400,10 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 
 	this->initModifiers(flags);
 	this->initExecutableInformation();
+
+#ifdef __ANDROID__
+	tzset();
+#endif
 
 	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
 	{
@@ -446,7 +454,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.7.0";
+	string version = "1.7.1";
 
 	return version;
 }
@@ -484,7 +492,7 @@ void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs
 	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize, flags));
 }
 
-void Log::configure(const string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
+void Log::configure(const string& logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
 {
 	if (instance)
 	{
