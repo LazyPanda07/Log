@@ -1,7 +1,5 @@
 #pragma once
 
-#define _DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
-
 #ifdef __LINUX__
 #define LOG_API __attribute__((visibility("default")))
 #else

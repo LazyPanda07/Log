@@ -454,7 +454,7 @@ Log& Log::getInstance()
 
 string Log::getLogLibraryVersion()
 {
-	string version = "1.7.1";
+	string version = "1.7.2";
 
 	return version;
 }
