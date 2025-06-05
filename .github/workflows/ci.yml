@@ -255,7 +255,7 @@ jobs:
 
     - name: Create Linux ARM zip
       if: ${{ env.CURRENT_BRANCH == 'master' }}
-      run: zip -r linux.zip Release_LinuxARM
+      run: zip -r linux_aarch64.zip Release_LinuxARM
 
     - name: Publish
       if: ${{ env.CURRENT_BRANCH == 'master' }}
