@@ -16,6 +16,7 @@
 #include <mutex>
 #include <format>
 #include <vector>
+#include <atomic>
 #include <functional>
 
 #ifdef NDEBUG
