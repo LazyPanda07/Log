@@ -92,6 +92,28 @@ TEST(Log, DebugLogging)
 #endif
 }
 
+TEST(Log, VerbosityLogging)
+{
+	std::ifstream in(Log::getCurrentLogFilePath());
+	std::string temp = (std::ostringstream() << in.rdbuf()).str();
+
+	Log::setVerbosityLevel(Log::VerbosityLevel::warning);
+
+	Log::info("This info message should not be logged", "LogInformation");
+	Log::warning("LogWarning: This info message should be logged", "LogWarning");
+
+	Log::setVerbosityLevel(Log::VerbosityLevel::error);
+
+	Log::info("This info message should not be logged", "LogInformation");
+	Log::info("This info message should not be logged", "LogWarning");
+	Log::error("LogError: This info message should be logged", "LogError");
+
+	Log::setVerbosityLevel(Log::VerbosityLevel::verbose);
+
+	ASSERT_NE(temp.find("LogWarning: This info message should be logged"), std::string::npos);
+	ASSERT_NE(temp.find("LogError: This info message should be logged"), std::string::npos);
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);
