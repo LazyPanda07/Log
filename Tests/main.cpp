@@ -94,9 +94,6 @@ TEST(Log, DebugLogging)
 
 TEST(Log, VerbosityLogging)
 {
-	std::ifstream in(Log::getCurrentLogFilePath());
-	std::string temp = (std::ostringstream() << in.rdbuf()).str();
-
 	Log::setVerbosityLevel(Log::VerbosityLevel::warning);
 
 	Log::info("This info message should not be logged", "LogInformation");
@@ -109,6 +106,9 @@ TEST(Log, VerbosityLogging)
 	Log::error("LogError: This info message should be logged", "LogError");
 
 	Log::setVerbosityLevel(Log::VerbosityLevel::verbose);
+
+	std::ifstream in(Log::getCurrentLogFilePath());
+	std::string temp = (std::ostringstream() << in.rdbuf()).str();
 
 	ASSERT_NE(temp.find("LogWarning: This info message should be logged"), std::string::npos);
 	ASSERT_NE(temp.find("LogError: This info message should be logged"), std::string::npos);

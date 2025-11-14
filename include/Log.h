@@ -108,7 +108,7 @@ private:
 	std::ostream* outputStream;
 	std::ostream* errorStream;
 	DateFormat logDateFormat;
-	VerbosityLevel verbosityLevel;
+	std::atomic<VerbosityLevel> verbosityLevel;
 
 private:
 	static DateFormat dateFormatFromString(const std::string& source);
