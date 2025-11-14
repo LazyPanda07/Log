@@ -14,43 +14,66 @@
 #include <Windows.h>
 #endif
 
-using namespace std;
-
 static constexpr uint16_t dateSize = 10;
 static constexpr uint16_t fullDateSize = 17;
 
-static unique_ptr<Log> instance;
+static std::unique_ptr<Log> instance;
 
-Log::dateFormat Log::dateFormatFromString(const string& source)
+Log::DateFormat Log::dateFormatFromString(const std::string& source)
 {
 	if (source == "DMY")
 	{
-		return dateFormat::DMY;
+		return DateFormat::DMY;
 	}
 	else if (source == "MDY")
 	{
-		return dateFormat::MDY;
+		return DateFormat::MDY;
 	}
 	else if (source == "YMD")
 	{
-		return dateFormat::YMD;
+		return DateFormat::YMD;
 	}
 
-	throw invalid_argument("Can't convert source to dateFormat");
+	throw std::invalid_argument("Can't convert source to dateFormat");
 }
 
-string_view Log::getLocalTimeZoneName()
+std::string_view Log::getLocalTimeZoneName()
 {
 #ifdef __ANDROID__
 	return tzname[0];
 #else
-	return chrono::get_tzdb().current_zone()->name();
+	return std::chrono::get_tzdb().current_zone()->name();
 #endif
 }
 
-void Log::write(const string& data, level type)
+bool Log::verbosityFilter(Level level)
 {
-	unique_lock<mutex> lock(writeMutex);
+	switch (verbosityLevel)
+	{
+	case VerbosityLevel::verbose:
+		return false;
+
+	case VerbosityLevel::warning:
+		return level >= Level::warning;
+
+	case VerbosityLevel::error:
+		return level >= Level::error;
+
+	default:
+		throw std::runtime_error(std::format("Wrong verbosityLevel in {}", __FUNCTION__));
+	}
+
+	return false;
+}
+
+void Log::write(const std::string& data, Level type)
+{
+	if (this->verbosityFilter(type))
+	{
+		return;
+	}
+
+	std::unique_lock<std::mutex> lock(writeMutex);
 
 	currentLogFileSize += data.size();
 
@@ -59,52 +82,52 @@ void Log::write(const string& data, level type)
 		this->nextLogFile();
 	}
 
-	logFile << data << endl;
+	logFile << data << std::endl;
 
 	switch (type)
 	{
-	case Log::level::info:
-	case Log::level::warning:
+	case Log::Level::info:
+	case Log::Level::warning:
 		if (outputStream)
 		{
-			(*outputStream) << data << endl;
+			(*outputStream) << data << std::endl;
 		}
 
 		break;
 
-	case Log::level::error:
-	case Log::level::fatalError:
+	case Log::Level::error:
+	case Log::Level::fatalError:
 		if (errorStream)
 		{
-			(*errorStream) << data << endl;
+			(*errorStream) << data << std::endl;
 		}
 		else if (outputStream)
 		{
-			(*outputStream) << data << endl;
+			(*outputStream) << data << std::endl;
 		}
 	}
 }
 
 void Log::nextLogFile()
 {
-	string currentDate = this->getCurrentDate();
+	std::string currentDate = this->getCurrentDate();
 
-	for (const auto& i : filesystem::directory_iterator(basePath))
+	for (const auto& i : std::filesystem::directory_iterator(basePath))
 	{
-		string checkDate = i.path().filename().string();
+		std::string checkDate = i.path().filename().string();
 		checkDate.resize(dateSize);
 
 		if (currentDate == checkDate)
 		{
-			for (const auto& j : filesystem::directory_iterator(i))
+			for (const auto& j : std::filesystem::directory_iterator(i))
 			{
 				if (this->checkFileSize(j))
 				{
-					logFile.open(j.path(), ios::app);
+					logFile.open(j.path(), std::ios::app);
 
 					currentLogFilePath = j.path();
 
-					currentLogFileSize = filesystem::file_size(currentLogFilePath);
+					currentLogFileSize = std::filesystem::file_size(currentLogFilePath);
 
 					return;
 				}
@@ -126,108 +149,108 @@ void Log::nextLogFile()
 
 void Log::newLogFolder()
 {
-	filesystem::path current(basePath / this->getCurrentDate());
+	std::filesystem::path current(basePath / this->getCurrentDate());
 
-	filesystem::create_directories(current);
+	std::filesystem::create_directories(current);
 
-	currentLogFilePath = move(current);
+	currentLogFilePath = std::move(current);
 }
 
 bool Log::checkDate() const
 {
-	string logFileDate = currentLogFilePath.filename().string();
+	std::string logFileDate = currentLogFilePath.filename().string();
 
 	logFileDate.resize(dateSize);
 
 	return logFileDate == this->getCurrentDate();
 }
 
-bool Log::checkFileSize(const filesystem::path& filePath) const
+bool Log::checkFileSize(const std::filesystem::path& filePath) const
 {
-	return filesystem::file_size(filePath) < Log::logFileSize;
+	return std::filesystem::file_size(filePath) < Log::logFileSize;
 }
 
-string Log::getCurrentDate() const
+std::string Log::getCurrentDate() const
 {
-	auto now = chrono::floor<chrono::days>(chrono::system_clock::now());
+	auto now = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now());
 
 	switch (logDateFormat)
 	{
-	case Log::dateFormat::DMY:
-		return vformat("{0:%d.%m.%Y}", make_format_args(now));
+	case Log::DateFormat::DMY:
+		return std::vformat("{0:%d.%m.%Y}", std::make_format_args(now));
 
-	case Log::dateFormat::MDY:
-		return vformat("{0:%m.%d.%Y}", make_format_args(now));
+	case Log::DateFormat::MDY:
+		return std::vformat("{0:%m.%d.%Y}", std::make_format_args(now));
 
-	case Log::dateFormat::YMD:
-		return vformat("{0:%Y.%m.%d}", make_format_args(now));
+	case Log::DateFormat::YMD:
+		return std::vformat("{0:%Y.%m.%d}", std::make_format_args(now));
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
 	return {};
 }
 
-string Log::getFullCurrentDateFileName() const
+std::string Log::getFullCurrentDateFileName() const
 {
-	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
+	auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
 
 	switch (logDateFormat)
 	{
-	case dateFormat::DMY:
-		return vformat("{0:%d.%m.%Y-%H.%M.%S}", make_format_args(now));
+	case DateFormat::DMY:
+		return std::vformat("{0:%d.%m.%Y-%H.%M.%S}", std::make_format_args(now));
 
-	case dateFormat::MDY:
-		return vformat("{0:%m.%d.%Y-%H.%M.%S}", make_format_args(now));
+	case DateFormat::MDY:
+		return std::vformat("{0:%m.%d.%Y-%H.%M.%S}", std::make_format_args(now));
 
-	case dateFormat::YMD:
-		return vformat("{0:%Y.%m.%d-%H.%M.%S}", make_format_args(now));
+	case DateFormat::YMD:
+		return std::vformat("{0:%Y.%m.%d-%H.%M.%S}", std::make_format_args(now));
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
 	return {};
 }
 
-string Log::getFullCurrentDateUTC() const
+std::string Log::getFullCurrentDateUTC() const
 {
-	auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
-	string formatString = "[";
+	auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+	std::string formatString = "[";
 
 	switch (logDateFormat)
 	{
-	case dateFormat::DMY:
+	case DateFormat::DMY:
 		formatString += "{0:%d.%m.%Y-%H.%M.%S}";
 
 		break;
 
-	case dateFormat::MDY:
+	case DateFormat::MDY:
 		formatString += "{0:%m.%d.%Y-%H.%M.%S}";
 
 		break;
 
-	case dateFormat::YMD:
+	case DateFormat::YMD:
 		formatString += "{0:%Y.%m.%d-%H.%M.%S}";
 
 		break;
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
 	}
 
 	formatString += " UTC]";
 
-	return vformat(formatString, make_format_args(now));
+	return std::vformat(formatString, make_format_args(now));
 }
 
-string Log::getFullCurrentDateLocal() const
+std::string Log::getFullCurrentDateLocal() const
 {
 #ifdef __ANDROID__
-	auto now = chrono::system_clock::now();
-	time_t currentTime = chrono::system_clock::to_time_t(now);
-	string formatString;
+	auto now = std::chrono::system_clock::now();
+	time_t currentTime = std::chrono::system_clock::to_time_t(now);
+	std::string formatString;
 
 	tm localTime;
 	localtime_r(&currentTime, &localTime);
@@ -250,7 +273,7 @@ string Log::getFullCurrentDateLocal() const
 		break;
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __func__));
+		throw std::runtime_error(std::format("Wrong dateFormat in {}", __func__));
 	}
 
 	string currentDateLocal(256, '\0');
@@ -259,50 +282,50 @@ string Log::getFullCurrentDateLocal() const
 
 	return format("[{} {}]", currentDateLocal, Log::getLocalTimeZoneName());
 #else
-	auto now = chrono::get_tzdb().current_zone()->to_local(chrono::floor<chrono::seconds>(chrono::system_clock::now()));
-	string_view zoneName = Log::getLocalTimeZoneName();
-	string formatString = "[";
+	auto now = std::chrono::get_tzdb().current_zone()->to_local(std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+	std::string_view zoneName = Log::getLocalTimeZoneName();
+	std::string formatString = "[";
 
 	switch (logDateFormat)
 	{
-	case dateFormat::DMY:
+	case DateFormat::DMY:
 		formatString += "{0:%d.%m.%Y-%H.%M.%S}";
 
 		break;
 
-	case dateFormat::MDY:
+	case DateFormat::MDY:
 		formatString += "{0:%m.%d.%Y-%H.%M.%S}";
 
 		break;
 
-	case dateFormat::YMD:
+	case DateFormat::YMD:
 		formatString += "{0:%Y.%m.%d-%H.%M.%S}";
 
 		break;
 
 	default:
-		throw runtime_error(format("Wrong dateFormat in {}", __func__));
+		throw std::runtime_error(std::format("Wrong dateFormat in {}", __func__));
 	}
 
 	formatString += " {1}]";
 
-	return vformat(formatString, make_format_args(now, zoneName));
+	return std::vformat(formatString, std::make_format_args(now, zoneName));
 #endif
 }
 
-string Log::getProcessName() const
+std::string Log::getProcessName() const
 {
-	return format("[process name: {}]", executablePath.string());
+	return std::format("[process name: {}]", executablePath.string());
 }
 
-string Log::getProcessId() const
+std::string Log::getProcessId() const
 {
-	return format("[process id: {}]", executableProcessId);
+	return std::format("[process id: {}]", executableProcessId);
 }
 
-string Log::getThreadId() const
+std::string Log::getThreadId() const
 {
-	return (ostringstream() << "[thread id: " << this_thread::get_id() << ']').str();
+	return (std::ostringstream() << "[thread id: " << std::this_thread::get_id() << ']').str();
 }
 
 void Log::initModifiers(uint64_t flags)
@@ -342,13 +365,13 @@ void Log::initExecutableInformation()
 
 #ifdef __LINUX__
 	executableProcessId = static_cast<int64_t>(getpid());
-	FILE* file = popen(format("realpath /proc/{}/exe", executableProcessId).data(), "r");
+	FILE* file = popen(std::format("realpath /proc/{}/exe", executableProcessId).data(), "r");
 
 	fread(buffer, sizeof(char), bufferSize, file);
 
 	executablePath = buffer;
 
-	string temp = executablePath.string();
+	std::string temp = executablePath.string();
 
 	temp.erase(remove(temp.begin(), temp.end(), '\n'), temp.cend());
 
@@ -375,26 +398,27 @@ void Log::initExecutableInformation()
 		}
 		else
 		{
-			cerr << "Error GetModuleBaseNameA : " << GetLastError() << endl;
+			std::cerr << "Error GetModuleBaseNameA : " << GetLastError() << std::endl;
 		}
 
 		CloseHandle(handle);
 	}
 	else
 	{
-		cerr << "Error OpenProcess : " << GetLastError() << endl;
+		std::cerr << "Error OpenProcess : " << GetLastError() << std::endl;
 	}
 #endif
 }
 
-void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
+void Log::init(DateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags, VerbosityLevel verbosityLevel)
 {
-	unique_lock<mutex> lock(writeMutex);
+	std::unique_lock<std::mutex> lock(writeMutex);
 
 	this->logDateFormat = logDateFormat;
-	basePath = pathToLogs.empty() ? filesystem::current_path() / "logs" : pathToLogs;
+	basePath = pathToLogs.empty() ? std::filesystem::current_path() / "logs" : pathToLogs;
 	currentLogFilePath = basePath;
 	this->flags = flags;
+	this->verbosityLevel = verbosityLevel;
 
 	Log::logFileSize = defaultLogFileSize;
 
@@ -405,17 +429,17 @@ void Log::init(dateFormat logDateFormat, const filesystem::path& pathToLogs, uin
 	tzset();
 #endif
 
-	if (filesystem::exists(currentLogFilePath) && filesystem::is_directory(currentLogFilePath))
+	if (std::filesystem::exists(currentLogFilePath) && std::filesystem::is_directory(currentLogFilePath))
 	{
 		this->nextLogFile();
 	}
-	else if (filesystem::exists(currentLogFilePath) && !filesystem::is_directory(currentLogFilePath))
+	else if (std::filesystem::exists(currentLogFilePath) && !std::filesystem::is_directory(currentLogFilePath))
 	{
-		throw runtime_error(currentLogFilePath.string() + " must be directory");
+		throw std::runtime_error(currentLogFilePath.string() + " must be directory");
 	}
-	else if (!filesystem::exists(currentLogFilePath))
+	else if (!std::filesystem::exists(currentLogFilePath))
 	{
-		filesystem::create_directories(currentLogFilePath);
+		std::filesystem::create_directories(currentLogFilePath);
 
 		this->nextLogFile();
 	}
@@ -428,16 +452,16 @@ Log::Log() :
 	this->init();
 }
 
-Log::Log(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags) :
+Log::Log(DateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags, VerbosityLevel verbosityLevel) :
 	outputStream(nullptr),
 	errorStream(nullptr)
 {
 	this->init(logDateFormat, pathToLogs, defaultLogFileSize, flags);
 }
 
-Log& Log::operator +=(const string& message)
+Log& Log::operator +=(const std::string& message)
 {
-	this->log(level::info, "{}", "LogTemp", message);
+	this->log(Level::info, "{}", "LogTemp", message);
 
 	return *this;
 }
@@ -446,24 +470,24 @@ Log& Log::getInstance()
 {
 	if (!instance)
 	{
-		instance = unique_ptr<Log>(new Log());
+		instance = std::unique_ptr<Log>(new Log());
 	}
 
 	return *instance;
 }
 
-string Log::getLogLibraryVersion()
+std::string Log::getLogLibraryVersion()
 {
-	string version = "1.8.0";
+	std::string version = "1.9.0";
 
 	return version;
 }
 
-uint64_t Log::createFlags(const vector<string>& values)
+uint64_t Log::createFlags(const std::vector<std::string>& values)
 {
 #define ADD_FLAG(flagName) { #flagName, AdditionalInformation::flagName }
 
-	const unordered_map<string, uint64_t> flagNameToFlag =
+	const std::unordered_map<std::string, uint64_t> flagNameToFlag =
 	{
 		ADD_FLAG(utcDate),
 		ADD_FLAG(localDate),
@@ -473,7 +497,7 @@ uint64_t Log::createFlags(const vector<string>& values)
 	};
 	uint64_t flags = 0;
 
-	for (const string& value : values)
+	for (const std::string& value : values)
 	{
 		flags |= flagNameToFlag.at(value);
 	}
@@ -482,32 +506,32 @@ uint64_t Log::createFlags(const vector<string>& values)
 #undef ADD_FLAG
 }
 
-void Log::configure(dateFormat logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
+void Log::configure(DateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags, VerbosityLevel verbosityLevel)
 {
 	if (instance)
 	{
 		return;
 	}
 
-	instance = unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize, flags));
+	instance = std::unique_ptr<Log>(new Log(logDateFormat, pathToLogs, defaultLogFileSize, flags, verbosityLevel));
 }
 
-void Log::configure(const string& logDateFormat, const filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags)
+void Log::configure(const std::string& logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags, VerbosityLevel verbosityLevel)
 {
 	if (instance)
 	{
 		return;
 	}
 
-	instance = unique_ptr<Log>(new Log(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize, flags));
+	instance = std::unique_ptr<Log>(new Log(Log::dateFormatFromString(logDateFormat), pathToLogs, defaultLogFileSize, flags, verbosityLevel));
 }
 
-void Log::duplicateLog(ostream& outputStream)
+void Log::duplicateLog(std::ostream& outputStream)
 {
 	Log::getInstance().outputStream = &outputStream;
 }
 
-void Log::duplicateErrorLog(ostream& errorStream)
+void Log::duplicateErrorLog(std::ostream& errorStream)
 {
 	Log::getInstance().errorStream = &errorStream;
 }
@@ -517,12 +541,17 @@ bool Log::isValid()
 	return static_cast<bool>(instance);
 }
 
-const filesystem::path& Log::getCurrentLogFilePath()
+void Log::setVerbosityLevel(VerbosityLevel level)
+{
+	Log::getInstance().verbosityLevel = level;
+}
+
+const std::filesystem::path& Log::getCurrentLogFilePath()
 {
 	return Log::getInstance().currentLogFilePath;
 }
 
-const filesystem::path& Log::getExecutablePath()
+const std::filesystem::path& Log::getExecutablePath()
 {
 	return Log::getInstance().executablePath;
 }

@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.27.0)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install-dir CACHE STRING "")
 option(BUILD_SHARED_LIBS "" OFF)
 
-project(Log VERSION	1.8.0)
+project(Log VERSION	1.9.0)
 
 if (UNIX)
 	add_definitions(-D__LINUX__)
@@ -19,15 +18,20 @@ add_library(
 	src/Log.cpp
 )
 
+target_include_directories(
+	${PROJECT_NAME} PUBLIC
+	include
+)
+
 if (DEFINED ENV{MARCH} AND NOT "$ENV{MARCH}" STREQUAL "")
 	target_compile_options(${PROJECT_NAME} PRIVATE -march=$ENV{MARCH})
 endif()
 
 install(
 	TARGETS ${PROJECT_NAME} 
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-	LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-	RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/dll
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION dll
 )
 
-install(DIRECTORY src/ DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY include DESTINATION .)

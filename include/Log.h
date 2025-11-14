@@ -41,7 +41,7 @@
 class LOG_API Log
 {
 private:
-	enum class level
+	enum class Level
 	{
 		info,
 		warning,
@@ -53,6 +53,16 @@ private:
 
 public:
 	/**
+	 * @brief Specifies verbosity levels for logging.
+	 */
+	enum class VerbosityLevel
+	{
+		verbose,
+		warning,
+		error
+	};
+
+	/**
 	 * @brief Defaut size of each log file 128 MiB
 	 */
 	static inline uintmax_t logFileSize = 128 * 1024 * 1024;
@@ -60,13 +70,13 @@ public:
 	/**
 	 * @brief File extension for generated files
 	 */
-	static inline std::string_view fileExtension = ".log";
+	static inline constexpr std::string_view fileExtension = ".log";
 
 public:
 	/**
 	 * @brief Logging date format
 	 */
-	enum class dateFormat
+	enum class DateFormat
 	{
 		DMY,
 		MDY,
@@ -97,14 +107,17 @@ private:
 	size_t currentLogFileSize;
 	std::ostream* outputStream;
 	std::ostream* errorStream;
-	dateFormat logDateFormat;
+	DateFormat logDateFormat;
+	VerbosityLevel verbosityLevel;
 
 private:
-	static dateFormat dateFormatFromString(const std::string& source);
+	static DateFormat dateFormatFromString(const std::string& source);
 
 	static std::string_view getLocalTimeZoneName();
 
-	void write(const std::string& data, level type);
+	bool verbosityFilter(Level level);
+
+	void write(const std::string& data, Level type);
 
 	void nextLogFile();
 
@@ -134,16 +147,17 @@ private:
 
 	void init
 	(
-		dateFormat logDateFormat = dateFormat::DMY,
+		DateFormat logDateFormat = DateFormat::DMY,
 		const std::filesystem::path& pathToLogs = "",
 		uintmax_t defaultLogFileSize = Log::logFileSize,
-		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId,
+		VerbosityLevel verbosityLevel = VerbosityLevel::verbose
 	);
 
 private:
 	Log();
 
-	Log(dateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags);
+	Log(DateFormat logDateFormat, const std::filesystem::path& pathToLogs, uintmax_t defaultLogFileSize, uint64_t flags, VerbosityLevel verbosityLevel);
 
 	Log(const Log&) = delete;
 
@@ -159,7 +173,7 @@ private:
 
 private:
 	template<typename... Args>
-	void log(level type, std::string_view format, std::string_view category, Args&&... args);
+	void log(Level type, std::string_view format, std::string_view category, Args&&... args);
 
 public:
 	/**
@@ -194,13 +208,15 @@ public:
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
 	* @param flags Log::AdditionalInformation fields with bitwise OR(|) for multiple values
+	* @param verbosityLevel Verbosity level for logging
 	*/
 	static void configure
 	(
-		dateFormat logDateFormat = dateFormat::DMY,
+		DateFormat logDateFormat = DateFormat::DMY,
 		const std::filesystem::path& pathToLogs = "",
 		uintmax_t defaultLogFileSize = Log::logFileSize,
-		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId,
+		VerbosityLevel verbosityLevel = VerbosityLevel::verbose
 	);
 
 	/**
@@ -209,13 +225,15 @@ public:
 	* @param pathToLogs Path to logs folder
 	* @param defaultLogFileSize Size of each log file in bytes
 	* @param flags Log::AdditionalInformation fields with bitwise OR(|) for multiple values
+	* @param verbosityLevel Verbosity level for logging
 	*/
 	static void configure
 	(
 		const std::string& logDateFormat = "DMY",
 		const std::filesystem::path& pathToLogs = "",
 		uintmax_t defaultLogFileSize = Log::logFileSize,
-		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId
+		uint64_t flags = AdditionalInformation::utcDate | AdditionalInformation::processName | AdditionalInformation::processId,
+		VerbosityLevel verbosityLevel = VerbosityLevel::verbose
 	);
 
 	/**
@@ -235,6 +253,12 @@ public:
 	 * @return 
 	 */
 	static bool isValid();
+
+	/**
+	 * @brief Sets the verbosity level used for logging.
+	 * @param level The verbosity level to set.
+	 */
+	static void setVerbosityLevel(VerbosityLevel level);
 
 	/**
 	 * @brief Get current log file path
@@ -298,31 +322,31 @@ public:
 template<typename... Args>
 void Log::info(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::info, format, category, std::forward<Args>(args)...);
+	Log::getInstance().log(Level::info, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::warning(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::warning, format, category, std::forward<Args>(args)...);
+	Log::getInstance().log(Level::warning, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::error(std::string_view format, std::string_view category, Args&&... args)
 {
-	Log::getInstance().log(level::error, format, category, std::forward<Args>(args)...);
+	Log::getInstance().log(Level::error, format, category, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
 void Log::fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args)
 {
-	Log::getInstance().log(level::fatalError, format, category, std::forward<Args>(args)...);
+	Log::getInstance().log(Level::fatalError, format, category, std::forward<Args>(args)...);
 
 	exit(exitCode);
 }
 
 template<typename... Args>
-void Log::log(level type, std::string_view format, std::string_view category, Args&&... args)
+void Log::log(Level type, std::string_view format, std::string_view category, Args&&... args)
 {
 	std::string result = std::vformat(format, std::make_format_args(args...));
 	std::string additionalInformation;
@@ -338,22 +362,22 @@ void Log::log(level type, std::string_view format, std::string_view category, Ar
 
 	switch (type)
 	{
-	case level::info:
+	case Level::info:
 		additionalInformation += "INFO";
 
 		break;
 
-	case level::warning:
+	case Level::warning:
 		additionalInformation += "WARNING";
 
 		break;
 
-	case level::error:
+	case Level::error:
 		additionalInformation += "ERROR";
 
 		break;
 
-	case level::fatalError:
+	case Level::fatalError:
 		additionalInformation += "FATAL_ERROR";
 
 		break;
