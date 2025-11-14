@@ -110,8 +110,8 @@ TEST(Log, VerbosityLogging)
 
 	Log::setVerbosityLevel(Log::VerbosityLevel::verbose);
 
-	ASSERT_NE(temp.find("LogWarning: This info message should be logged"), std::string::npos);
-	ASSERT_NE(temp.find("LogError: This info message should be logged"), std::string::npos);
+	ASSERT_NE(temp.find("LogWarning: This info message should be logged"), std::string::npos) << temp;
+	ASSERT_NE(temp.find("LogError: This info message should be logged"), std::string::npos) << temp;
 }
 
 int main(int argc, char** argv)
