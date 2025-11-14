@@ -8,7 +8,7 @@ using namespace std::string_literals;
 
 TEST(Log, Configuration)
 {
-	Log::configure(Log::dateFormat::DMY);
+	Log::configure(Log::DateFormat::DMY);
 }
 
 TEST(Log, Logging)
