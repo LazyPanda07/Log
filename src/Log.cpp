@@ -51,7 +51,7 @@ bool Log::verbosityFilter(Level level)
 	switch (verbosityLevel)
 	{
 	case VerbosityLevel::verbose:
-		return false;
+		return true;
 
 	case VerbosityLevel::warning:
 		return level >= Level::warning;
@@ -68,7 +68,7 @@ bool Log::verbosityFilter(Level level)
 
 void Log::write(const std::string& data, Level type)
 {
-	if (this->verbosityFilter(type))
+	if (!this->verbosityFilter(type))
 	{
 		return;
 	}
