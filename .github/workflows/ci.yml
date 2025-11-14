@@ -105,12 +105,6 @@ jobs:
         path: Log
         name: ${{ matrix.configuration }}_Windows
 
-    - name: Get Google Test
-      uses: LazyPanda07/get-gtest@v1
-      with: 
-        install-path: Tests/gtest
-        build-type: ${{ matrix.configuration }}
-
     - name: Enable NMake
       uses: ilammy/msvc-dev-cmd@v1.13.0
 
