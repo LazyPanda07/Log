@@ -276,11 +276,11 @@ std::string Log::getFullCurrentDateLocal() const
 		throw std::runtime_error(std::format("Wrong DateFormat in {}", __func__));
 	}
 
-	string currentDateLocal(256, '\0');
+	std::string currentDateLocal(256, '\0');
 
 	currentDateLocal.resize(strftime(currentDateLocal.data(), currentDateLocal.size(), formatString.data(), &localTime));
 
-	return format("[{} {}]", currentDateLocal, Log::getLocalTimeZoneName());
+	return std::format("[{} {}]", currentDateLocal, Log::getLocalTimeZoneName());
 #else
 	auto now = std::chrono::get_tzdb().current_zone()->to_local(std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
 	std::string_view zoneName = Log::getLocalTimeZoneName();
@@ -478,7 +478,7 @@ Log& Log::getInstance()
 
 std::string Log::getLogLibraryVersion()
 {
-	std::string version = "1.9.1";
+	std::string version = "1.9.2";
 
 	return version;
 }
