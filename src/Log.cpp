@@ -34,7 +34,7 @@ Log::DateFormat Log::dateFormatFromString(const std::string& source)
 		return DateFormat::YMD;
 	}
 
-	throw std::invalid_argument("Can't convert source to dateFormat");
+	throw std::invalid_argument("Can't convert source to DateFormat");
 }
 
 std::string_view Log::getLocalTimeZoneName()
@@ -186,7 +186,7 @@ std::string Log::getCurrentDate() const
 		return std::vformat("{0:%Y.%m.%d}", std::make_format_args(now));
 
 	default:
-		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong DateFormat in {}", __FUNCTION__));
 	}
 
 	return {};
@@ -208,7 +208,7 @@ std::string Log::getFullCurrentDateFileName() const
 		return std::vformat("{0:%Y.%m.%d-%H.%M.%S}", std::make_format_args(now));
 
 	default:
-		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong DateFormat in {}", __FUNCTION__));
 	}
 
 	return {};
@@ -237,7 +237,7 @@ std::string Log::getFullCurrentDateUTC() const
 		break;
 
 	default:
-		throw std::runtime_error(std::format("Wrong dateFormat in {}", __FUNCTION__));
+		throw std::runtime_error(std::format("Wrong DateFormat in {}", __FUNCTION__));
 	}
 
 	formatString += " UTC]";
@@ -257,23 +257,23 @@ std::string Log::getFullCurrentDateLocal() const
 
 	switch (logDateFormat)
 	{
-	case dateFormat::DMY:
+	case DateFormat::DMY:
 		formatString += "%d.%m.%Y-%H.%M.%S";
 
 		break;
 
-	case dateFormat::MDY:
+	case DateFormat::MDY:
 		formatString += "%m.%d.%Y-%H.%M.%S";
 
 		break;
 
-	case dateFormat::YMD:
+	case DateFormat::YMD:
 		formatString += "%Y.%m.%d-%H.%M.%S";
 
 		break;
 
 	default:
-		throw std::runtime_error(std::format("Wrong dateFormat in {}", __func__));
+		throw std::runtime_error(std::format("Wrong DateFormat in {}", __func__));
 	}
 
 	string currentDateLocal(256, '\0');
@@ -304,7 +304,7 @@ std::string Log::getFullCurrentDateLocal() const
 		break;
 
 	default:
-		throw std::runtime_error(std::format("Wrong dateFormat in {}", __func__));
+		throw std::runtime_error(std::format("Wrong DateFormat in {}", __func__));
 	}
 
 	formatString += " {1}]";
@@ -478,7 +478,7 @@ Log& Log::getInstance()
 
 std::string Log::getLogLibraryVersion()
 {
-	std::string version = "1.9.0";
+	std::string version = "1.9.1";
 
 	return version;
 }
