@@ -439,7 +439,7 @@ Log& Log::getInstance()
 
 std::string Log::getLogLibraryVersion()
 {
-	std::string version = "1.9.2";
+	std::string version = "1.10.0";
 
 	return version;
 }
