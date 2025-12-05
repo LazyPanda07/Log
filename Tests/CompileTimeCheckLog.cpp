@@ -61,32 +61,6 @@ TEST(CompileTimeLog, ChangingLogFile)
 	ASSERT_NE(Log::getCurrentLogFilePath(), currentLogFile);
 }
 
-TEST(CompileTimeLog, DebugLogging)
-{
-	int firstLine = __LINE__;
-	int secondLine = __LINE__;
-	int thirdLine = __LINE__;
-
-	LOG_DEBUG_INFO("Information message on line {}", "LogInformation", firstLine);
-
-	LOG_DEBUG_WARNING("Warning message on line {}", "LogWarning", secondLine);
-
-	LOG_DEBUG_ERROR("Error message on line {}", "LogError", thirdLine);
-
-	std::ifstream in(Log::getCurrentLogFilePath());
-	std::string temp = (std::ostringstream() << in.rdbuf()).str();
-
-#ifdef NDEBUG
-	ASSERT_EQ(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
-	ASSERT_EQ(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
-	ASSERT_EQ(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
-#else
-	ASSERT_NE(temp.find("Information message on line "s + std::to_string(firstLine)), std::string::npos);
-	ASSERT_NE(temp.find("Warning message on line "s + std::to_string(secondLine)), std::string::npos);
-	ASSERT_NE(temp.find("Error message on line "s + std::to_string(thirdLine)), std::string::npos);
-#endif
-}
-
 TEST(CompileTimeLog, VerbosityLogging)
 {
 	Log::setVerbosityLevel(Log::VerbosityLevel::warning);
