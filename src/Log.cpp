@@ -79,7 +79,7 @@ void Log::write(const std::string& data, Level type)
 
 	if (currentLogFileSize >= Log::logFileSize || !this->checkDate())
 	{
-		this->nextLogFile();
+		Log::nextLogFile(false, *this);
 	}
 
 	logFile << data << std::endl;
@@ -106,45 +106,6 @@ void Log::write(const std::string& data, Level type)
 			(*outputStream) << data << std::endl;
 		}
 	}
-}
-
-void Log::nextLogFile()
-{
-	std::string currentDate = this->getCurrentDate();
-
-	for (const auto& i : std::filesystem::directory_iterator(basePath))
-	{
-		std::string checkDate = i.path().filename().string();
-		checkDate.resize(dateSize);
-
-		if (currentDate == checkDate)
-		{
-			for (const auto& j : std::filesystem::directory_iterator(i))
-			{
-				if (this->checkFileSize(j))
-				{
-					logFile.open(j.path(), std::ios::app);
-
-					currentLogFilePath = j.path();
-
-					currentLogFileSize = std::filesystem::file_size(currentLogFilePath);
-
-					return;
-				}
-			}
-		}
-	}
-
-	this->newLogFolder();
-
-	logFile.close();
-
-	logFile.open
-	(
-		(currentLogFilePath /= this->getFullCurrentDateFileName()) += Log::fileExtension
-	);
-
-	currentLogFileSize = 0;
 }
 
 void Log::newLogFolder()
@@ -361,7 +322,7 @@ void Log::initModifiers(uint64_t flags)
 void Log::initExecutableInformation()
 {
 	constexpr size_t bufferSize = 4096;
-	char buffer[bufferSize];
+	char buffer[bufferSize]{};
 
 #ifdef __LINUX__
 	executableProcessId = static_cast<int64_t>(getpid());
@@ -431,7 +392,7 @@ void Log::init(DateFormat logDateFormat, const std::filesystem::path& pathToLogs
 
 	if (std::filesystem::exists(currentLogFilePath) && std::filesystem::is_directory(currentLogFilePath))
 	{
-		this->nextLogFile();
+		Log::nextLogFile(false, *this);
 	}
 	else if (std::filesystem::exists(currentLogFilePath) && !std::filesystem::is_directory(currentLogFilePath))
 	{
@@ -441,7 +402,7 @@ void Log::init(DateFormat logDateFormat, const std::filesystem::path& pathToLogs
 	{
 		std::filesystem::create_directories(currentLogFilePath);
 
-		this->nextLogFile();
+		Log::nextLogFile(false, *this);
 	}
 }
 
@@ -534,6 +495,46 @@ void Log::duplicateLog(std::ostream& outputStream)
 void Log::duplicateErrorLog(std::ostream& errorStream)
 {
 	Log::getInstance().errorStream = &errorStream;
+}
+
+void Log::nextLogFile(bool force, Log& instance)
+{
+	std::unique_lock<std::mutex> lock(instance.writeMutex, std::try_to_lock);
+	std::string currentDate = instance.getCurrentDate();
+
+	for (const auto& i : std::filesystem::directory_iterator(instance.basePath))
+	{
+		std::string checkDate = i.path().filename().string();
+		checkDate.resize(dateSize);
+
+		if (currentDate == checkDate && !force)
+		{
+			for (const auto& j : std::filesystem::directory_iterator(i))
+			{
+				if (instance.checkFileSize(j))
+				{
+					instance.logFile.open(j.path(), std::ios::app);
+
+					instance.currentLogFilePath = j.path();
+
+					instance.currentLogFileSize = std::filesystem::file_size(instance.currentLogFilePath);
+
+					return;
+				}
+			}
+		}
+	}
+
+	instance.newLogFolder();
+
+	instance.logFile.close();
+
+	instance.logFile.open
+	(
+		(instance.currentLogFilePath /= instance.getFullCurrentDateFileName()) += Log::fileExtension
+	);
+
+	instance.currentLogFileSize = 0;
 }
 
 bool Log::isValid()

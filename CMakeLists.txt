@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.27.0)
 
 set(CMAKE_CXX_STANDARD 20)
-option(BUILD_SHARED_LIBS "" OFF)
 
 project(Log VERSION	1.9.2)
 

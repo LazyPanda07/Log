@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.27.0)
 set(CMAKE_CXX_STANDARD 20)
 set(GTEST_VERSION 1.17.0)
 set(DLL ${CMAKE_SOURCE_DIR}/../Log)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 
 if (UNIX)
 	set(DLL ${DLL}/lib/libLog.so)
@@ -27,6 +28,8 @@ FetchContent_MakeAvailable(gtest)
 add_executable(
 	${PROJECT_NAME}
 	main.cpp
+	StandardLog.cpp 
+	CompileTimeCheckLog.cpp
 )
 
 target_include_directories(
@@ -46,6 +49,5 @@ target_link_libraries(
 	gtest_main
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_BINARY_DIR}/bin)
-
-install(FILES ${DLL} DESTINATION ${CMAKE_BINARY_DIR}/bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(FILES ${DLL} DESTINATION bin)

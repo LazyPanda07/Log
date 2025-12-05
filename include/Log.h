@@ -19,6 +19,8 @@
 #include <atomic>
 #include <functional>
 
+#include "LogUtils.h"
+
 #ifdef NDEBUG
 #define LOG_DEBUG_INFO(format, category, ...)
 #define LOG_DEBUG_WARNING(format, category, ...)
@@ -120,8 +122,6 @@ private:
 
 	void write(const std::string& data, Level type);
 
-	void nextLogFile();
-
 	void newLogFolder();
 
 	bool checkDate() const;
@@ -179,14 +179,14 @@ private:
 public:
 	/**
 	 * @brief Print to log
-	 * @param message 
-	 * @return 
+	 * @param message
+	 * @return
 	 */
 	Log& operator +=(const std::string& message);
 
 	/**
 	 * @brief Get logger instance
-	 * @return 
+	 * @return
 	 */
 	static Log& getInstance();
 
@@ -251,9 +251,16 @@ public:
 
 	/**
 	 * @brief Is logger is valid
-	 * @return 
+	 * @return
 	 */
 	static bool isValid();
+
+	/**
+	 * @brief Move to next log file
+	 * @param force Force to next log file even if current file size is less than limit
+	 * @param instance Log instance
+	 */
+	static void nextLogFile(bool force = true, Log& instance = Log::getInstance());
 
 	/**
 	 * @brief Sets the verbosity level used for logging.
@@ -318,6 +325,47 @@ public:
 	 */
 	template<typename... Args>
 	static void fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args);
+
+	/**
+	 * @brief Log some information
+	 * @tparam ...Args
+	 * @param format Information with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
+	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+	static void info(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+
+	/**
+	 * @brief Log some warning message
+	 * @tparam ...Args
+	 * @param format Warning message with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
+	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+	static void warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+
+	/**
+	 * @brief Log some error
+	 * @tparam ...Args
+	 * @param format Error message with {} brackets for insertions
+	 * @param category Log category
+	 * @param ...args Insertions
+	 */
+	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+	static void error(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+
+	/**
+	 * @brief Log and exit
+	 * @tparam ...Args
+	 * @param format Fatal error message with {} brackets for insertions
+	 * @param category Log category
+	 * @param exitCode Exit code
+	 * @param ...args
+	 */
+	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+	static void fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat<Format, Args...>;
 };
 
 template<typename... Args>
@@ -345,6 +393,33 @@ void Log::fatalError(std::string_view format, std::string_view category, int exi
 
 	exit(exitCode);
 }
+
+template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+void Log::info(Args&&... args) requires log_utils::LogFormat<Format, Args...>
+{
+	Log::getInstance().log(Level::info, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
+}
+
+template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+void Log::warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>
+{
+	Log::getInstance().log(Level::warning, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
+}
+
+template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+void Log::error(Args&&... args) requires log_utils::LogFormat<Format, Args...>
+{
+	Log::getInstance().log(Level::error, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
+}
+
+template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
+void Log::fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat<Format, Args...>
+{
+	Log::getInstance().log(Level::fatalError, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
+
+	exit(exitCode);
+}
+
 
 template<typename... Args>
 void Log::log(Level type, std::string_view format, std::string_view category, Args&&... args)
