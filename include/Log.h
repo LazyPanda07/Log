@@ -477,11 +477,13 @@ void Log::info(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 	Log::getInstance().log(Level::info, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
 
+#ifdef _WIN32
 template<const auto& Format, const auto& Category, typename... Args>
 void Log::info(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 {
 	Log::getInstance().log(Level::info, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
+#endif
 
 template<typename... Args>
 void Log::warning(std::string_view format, std::string_view category, Args&&... args)
@@ -495,11 +497,13 @@ void Log::warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 	Log::getInstance().log(Level::warning, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
 
+#ifdef _WIN32
 template<const auto& Format, const auto& Category, typename... Args>
 void Log::warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 {
 	Log::getInstance().log(Level::warning, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
+#endif
 
 template<typename... Args>
 void Log::error(std::string_view format, std::string_view category, Args&&... args)
@@ -513,11 +517,13 @@ void Log::error(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 	Log::getInstance().log(Level::error, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
 
+#ifdef _WIN32
 template<const auto& Format, const auto& Category, typename... Args>
 void Log::error(Args&&... args) requires log_utils::LogFormat<Format, Args...>
 {
 	Log::getInstance().log(Level::error, static_cast<std::string_view>(Format), static_cast<std::string_view>(Category), std::forward<Args>(args)...);
 }
+#endif
 
 template<typename... Args>
 void Log::fatalError(std::string_view format, std::string_view category, int exitCode, Args&&... args)
@@ -535,6 +541,7 @@ void Log::fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat
 	exit(exitCode);
 }
 
+#ifdef _WIN32
 template<const auto& Format, const auto& Category, typename... Args>
 void Log::fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat<Format, Args...>
 {
@@ -542,3 +549,4 @@ void Log::fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat
 
 	exit(exitCode);
 }
+#endif
