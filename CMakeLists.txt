@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.27.0)
 
 set(CMAKE_CXX_STANDARD 20)
 
-project(Log VERSION	1.10.1)
+project(Log VERSION	1.11.0)
 
 if (UNIX)
 	add_definitions(-D__LINUX__)

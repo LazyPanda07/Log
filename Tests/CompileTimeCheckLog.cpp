@@ -4,6 +4,9 @@
 
 using namespace std::string_literals;
 
+constexpr char logTestMessage[] = "Log some information with current index {} and line {}";
+constexpr char logTestCategory[] = "LogTest";
+
 TEST(CompileTimeLog, Configuration)
 {
 	Log::configure(Log::DateFormat::DMY);
@@ -37,7 +40,7 @@ TEST(CompileTimeLog, Logging)
 
 TEST(CompileTimeLog, ChangingLogFile)
 {
-	static constexpr size_t cycles = 2'500'000;
+	constexpr size_t cycles = 2'500'000;
 
 	std::filesystem::path currentLogFile = Log::getCurrentLogFilePath();
 
@@ -47,7 +50,7 @@ TEST(CompileTimeLog, ChangingLogFile)
 
 	for (size_t i = 0; i < cycles; i++)
 	{
-		Log::info<"Log some information with current index {} and line {}", "LogTest">(i, __LINE__);
+		Log::info<logTestMessage, logTestCategory>(i, __LINE__);
 	}
 
 #ifdef NDEBUG
