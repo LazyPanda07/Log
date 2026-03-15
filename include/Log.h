@@ -305,6 +305,7 @@ public:
 	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
 	static void info(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
 
+#ifdef _WIN32
 	/**
 	 * @brief Log some information
 	 * @tparam ...Args
@@ -314,6 +315,7 @@ public:
 	 */
 	template<const auto& Format, const auto& Category, typename... Args>
 	static void info(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+#endif
 
 	/**
 	 * @brief Log some warning message
@@ -335,6 +337,7 @@ public:
 	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
 	static void warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
 
+#ifdef _WIN32
 	/**
 	 * @brief Log some warning message
 	 * @tparam ...Args
@@ -344,6 +347,7 @@ public:
 	 */
 	template<const auto& Format, const auto& Category, typename... Args>
 	static void warning(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+#endif
 
 	/**
 	 * @brief Log some error
@@ -365,6 +369,7 @@ public:
 	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
 	static void error(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
 
+#ifdef _WIN32
 	/**
 	 * @brief Log some error
 	 * @tparam ...Args
@@ -374,6 +379,7 @@ public:
 	 */
 	template<const auto& Format, const auto& Category, typename... Args>
 	static void error(Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+#endif
 
 	/**
 	 * @brief Log and exit
@@ -397,6 +403,7 @@ public:
 	template<log_utils::FixedString Format, log_utils::FixedString Category, typename... Args>
 	static void fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat<Format, Args...>;
 
+#ifdef _WIN32
 	/**
 	 * @brief Log and exit
 	 * @tparam ...Args
@@ -407,6 +414,7 @@ public:
 	 */
 	template<const auto& Format, const auto& Category, typename... Args>
 	static void fatalError(int exitCode, Args&&... args) requires log_utils::LogFormat<Format, Args...>;
+#endif
 };
 
 template<typename... Args>
